@@ -4,6 +4,7 @@
 \alias{pdf_split}
 \alias{pdf_length}
 \alias{pdf_select}
+\alias{pdf_compress}
 \title{Split PDF}
 \usage{
 pdf_split(input, output = NULL)
@@ -11,6 +12,8 @@ pdf_split(input, output = NULL)
 pdf_length(input)
 
 pdf_select(input, pages = 1, output = NULL)
+
+pdf_compress(input, output = NULL)
 }
 \arguments{
 \item{input}{path to the input pdf file}

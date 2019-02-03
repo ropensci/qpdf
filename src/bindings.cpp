@@ -50,3 +50,15 @@ Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rc
   outpdfw.write();
   return outfile;
 }
+
+// [[Rcpp::export]]
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, std::string outfile){
+  QPDF inpdf;
+  inpdf.processFile(infile);
+  QPDFWriter outpdfw(inpdf, outfile.c_str());
+  outpdfw.setStaticID(true); // for testing only
+  outpdfw.setStreamDataMode(qpdf_s_compress);
+  outpdfw.write();
+  return outfile;
+}
+

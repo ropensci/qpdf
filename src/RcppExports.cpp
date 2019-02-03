@@ -41,11 +41,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_pdf_compress
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, std::string outfile);
+RcppExport SEXP _qpdf_cpp_pdf_compress(SEXP infileSEXP, SEXP outfileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type outfile(outfileSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_compress(infile, outfile));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_qpdf_cpp_pdf_length", (DL_FUNC) &_qpdf_cpp_pdf_length, 1},
     {"_qpdf_cpp_pdf_split", (DL_FUNC) &_qpdf_cpp_pdf_split, 2},
     {"_qpdf_cpp_pdf_select", (DL_FUNC) &_qpdf_cpp_pdf_select, 3},
+    {"_qpdf_cpp_pdf_compress", (DL_FUNC) &_qpdf_cpp_pdf_compress, 2},
     {NULL, NULL, 0}
 };
 

@@ -35,3 +35,13 @@ pdf_select <- function(input, pages = 1, output = NULL){
     stop("Selected pages out of range")
   cpp_pdf_select(input, output, pages)
 }
+
+#' @export
+#' @rdname qpdf
+pdf_compress <- function(input, output = NULL){
+  input <- normalizePath(input, mustWork = TRUE)
+  if(!length(output))
+    output <- sub("\\.pdf$", "_output.pdf", input)
+  output <- normalizePath(output, mustWork = FALSE)
+  cpp_pdf_compress(input, output)
+}
