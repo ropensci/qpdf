@@ -7,10 +7,12 @@
 
 // [[Rcpp::export]]
 int cpp_pdf_length(char const* infile){
-  QPDF inpdf;
-  inpdf.processFile(infile);
-  std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
-  return pages.size();
+  QPDF pdf;
+  pdf.processFile(infile);
+  QPDFObjectHandle root = pdf.getRoot();
+  QPDFObjectHandle pages = root.getKey("/Pages");
+  QPDFObjectHandle count = pages.getKey("/Count");
+  return count.getIntValue();
 }
 
 // [[Rcpp::export]]
