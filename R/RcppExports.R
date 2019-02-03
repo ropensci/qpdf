@@ -13,6 +13,10 @@ cpp_pdf_select <- function(infile, outfile, which) {
     .Call('_qpdf_cpp_pdf_select', PACKAGE = 'qpdf', infile, outfile, which)
 }
 
+cpp_pdf_combine <- function(infiles, outfile) {
+    .Call('_qpdf_cpp_pdf_combine', PACKAGE = 'qpdf', infiles, outfile)
+}
+
 cpp_pdf_compress <- function(infile, outfile) {
     .Call('_qpdf_cpp_pdf_compress', PACKAGE = 'qpdf', infile, outfile)
 }

@@ -38,6 +38,16 @@ pdf_select <- function(input, pages = 1, output = NULL){
 
 #' @export
 #' @rdname qpdf
+pdf_combine <- function(input, output = NULL){
+  input <- normalizePath(input, mustWork = TRUE)
+  if(!length(output))
+    output <- sub("\\.pdf$", "_combined.pdf", input[1])
+  output <- normalizePath(output, mustWork = FALSE)
+  cpp_pdf_combine(input, output)
+}
+
+#' @export
+#' @rdname qpdf
 pdf_compress <- function(input, output = NULL){
   input <- normalizePath(input, mustWork = TRUE)
   if(!length(output))

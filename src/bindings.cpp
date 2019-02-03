@@ -36,7 +36,7 @@ Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix){
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rcpp::IntegerVector which){
+Rcpp::CharacterVector cpp_pdf_select(char const* infile, char const* outfile, Rcpp::IntegerVector which){
   QPDF inpdf;
   inpdf.processFile(infile);
   std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
@@ -46,7 +46,7 @@ Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rc
     int index = which.at(i) -1; //zero index
     QPDFPageDocumentHelper(outpdf).addPage(pages.at(index), false);
   }
-  QPDFWriter outpdfw(outpdf, outfile.c_str());
+  QPDFWriter outpdfw(outpdf, outfile);
   outpdfw.setStaticID(true); // for testing only
   outpdfw.setStreamDataMode(qpdf_s_preserve);
   outpdfw.write();
@@ -54,13 +54,31 @@ Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rc
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_compress(char const* infile, std::string outfile){
+Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const* outfile){
+  QPDF outpdf;
+  outpdf.emptyPDF();
+  for (int i = 0; i < infiles.size(); i++) {
+    QPDF inpdf;
+    inpdf.processFile(infiles.at(i));
+    std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
+    for (int i = 0; i < pages.size(); i++) {
+      QPDFPageDocumentHelper(outpdf).addPage(pages.at(i), false);
+    }
+  }
+  QPDFWriter outpdfw(outpdf, outfile);
+  outpdfw.setStaticID(true); // for testing only
+  outpdfw.setStreamDataMode(qpdf_s_preserve);
+  outpdfw.write();
+  return outfile;
+}
+
+// [[Rcpp::export]]
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile){
   QPDF inpdf;
   inpdf.processFile(infile);
-  QPDFWriter outpdfw(inpdf, outfile.c_str());
+  QPDFWriter outpdfw(inpdf, outfile);
   outpdfw.setStaticID(true); // for testing only
   outpdfw.setStreamDataMode(qpdf_s_compress);
   outpdfw.write();
   return outfile;
 }
-

@@ -29,26 +29,38 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_pdf_select
-Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rcpp::IntegerVector which);
+Rcpp::CharacterVector cpp_pdf_select(char const* infile, char const* outfile, Rcpp::IntegerVector which);
 RcppExport SEXP _qpdf_cpp_pdf_select(SEXP infileSEXP, SEXP outfileSEXP, SEXP whichSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
-    Rcpp::traits::input_parameter< std::string >::type outfile(outfileSEXP);
+    Rcpp::traits::input_parameter< char const* >::type outfile(outfileSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type which(whichSEXP);
     rcpp_result_gen = Rcpp::wrap(cpp_pdf_select(infile, outfile, which));
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_pdf_combine
+Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const* outfile);
+RcppExport SEXP _qpdf_cpp_pdf_combine(SEXP infilesSEXP, SEXP outfileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type infiles(infilesSEXP);
+    Rcpp::traits::input_parameter< char const* >::type outfile(outfileSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_combine(infiles, outfile));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_pdf_compress
-Rcpp::CharacterVector cpp_pdf_compress(char const* infile, std::string outfile);
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile);
 RcppExport SEXP _qpdf_cpp_pdf_compress(SEXP infileSEXP, SEXP outfileSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
-    Rcpp::traits::input_parameter< std::string >::type outfile(outfileSEXP);
+    Rcpp::traits::input_parameter< char const* >::type outfile(outfileSEXP);
     rcpp_result_gen = Rcpp::wrap(cpp_pdf_compress(infile, outfile));
     return rcpp_result_gen;
 END_RCPP
@@ -58,6 +70,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qpdf_cpp_pdf_length", (DL_FUNC) &_qpdf_cpp_pdf_length, 1},
     {"_qpdf_cpp_pdf_split", (DL_FUNC) &_qpdf_cpp_pdf_split, 2},
     {"_qpdf_cpp_pdf_select", (DL_FUNC) &_qpdf_cpp_pdf_select, 3},
+    {"_qpdf_cpp_pdf_combine", (DL_FUNC) &_qpdf_cpp_pdf_combine, 2},
     {"_qpdf_cpp_pdf_compress", (DL_FUNC) &_qpdf_cpp_pdf_compress, 2},
     {NULL, NULL, 0}
 };
