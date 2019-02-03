@@ -27,7 +27,7 @@ Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix){
     QPDFPageDocumentHelper(outpdf).addPage(pages.at(i), false);
     QPDFWriter outpdfw(outpdf, outfile.c_str());
     outpdfw.setStaticID(true); // for testing only
-    outpdfw.setStreamDataMode(qpdf_s_uncompress);
+    outpdfw.setStreamDataMode(qpdf_s_preserve);
     outpdfw.write();
   }
   return output;
@@ -46,7 +46,7 @@ Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rc
   }
   QPDFWriter outpdfw(outpdf, outfile.c_str());
   outpdfw.setStaticID(true); // for testing only
-  outpdfw.setStreamDataMode(qpdf_s_uncompress);
+  outpdfw.setStreamDataMode(qpdf_s_preserve);
   outpdfw.write();
   return outfile;
 }
