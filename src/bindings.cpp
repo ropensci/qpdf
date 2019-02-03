@@ -3,26 +3,24 @@
 #include <qpdf/QPDFWriter.hh>
 #include <qpdf/QUtil.hh>
 #include <string>
-#include <iostream>
 #include <Rcpp.h>
 
 // [[Rcpp::export]]
-void cpp_split_pdf(char const* infile, std::string outprefix){
+Rcpp::CharacterVector cpp_split_pdf(char const* infile, std::string outprefix){
   QPDF inpdf;
   inpdf.processFile(infile);
   std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
-  int pageno_len = QUtil::int_to_string(pages.size()).length();
-  int pageno = 0;
-  for (std::vector<QPDFPageObjectHelper>::iterator iter = pages.begin();
-       iter != pages.end(); ++iter)  {
-    QPDFPageObjectHelper& page(*iter);
-    std::string outfile = outprefix + QUtil::int_to_string(++pageno, pageno_len) + ".pdf";
+  Rcpp::CharacterVector output(pages.size());
+  for (int i = 0; i < pages.size(); i++) {
+    std::string outfile = outprefix + "_" + QUtil::int_to_string(i+1, pages.size()) + ".pdf";
+    output.at(i) = outfile;
     QPDF outpdf;
     outpdf.emptyPDF();
-    QPDFPageDocumentHelper(outpdf).addPage(page, false);
+    QPDFPageDocumentHelper(outpdf).addPage(pages.at(i), false);
     QPDFWriter outpdfw(outpdf, outfile.c_str());
     outpdfw.setStaticID(true); // for testing only
     outpdfw.setStreamDataMode(qpdf_s_uncompress);
     outpdfw.write();
   }
+  return output;
 }

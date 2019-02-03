@@ -6,14 +6,15 @@
 using namespace Rcpp;
 
 // cpp_split_pdf
-void cpp_split_pdf(char const* infile, std::string outprefix);
+Rcpp::CharacterVector cpp_split_pdf(char const* infile, std::string outprefix);
 RcppExport SEXP _qpdf_cpp_split_pdf(SEXP infileSEXP, SEXP outprefixSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
     Rcpp::traits::input_parameter< std::string >::type outprefix(outprefixSEXP);
-    cpp_split_pdf(infile, outprefix);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(cpp_split_pdf(infile, outprefix));
+    return rcpp_result_gen;
 END_RCPP
 }
 
