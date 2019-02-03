@@ -6,7 +6,15 @@
 #include <Rcpp.h>
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_split_pdf(char const* infile, std::string outprefix){
+int cpp_pdf_length(char const* infile){
+  QPDF inpdf;
+  inpdf.processFile(infile);
+  std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
+  return pages.size();
+}
+
+// [[Rcpp::export]]
+Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix){
   QPDF inpdf;
   inpdf.processFile(infile);
   std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
@@ -23,4 +31,22 @@ Rcpp::CharacterVector cpp_split_pdf(char const* infile, std::string outprefix){
     outpdfw.write();
   }
   return output;
+}
+
+// [[Rcpp::export]]
+Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rcpp::IntegerVector which){
+  QPDF inpdf;
+  inpdf.processFile(infile);
+  std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
+  QPDF outpdf;
+  outpdf.emptyPDF();
+  for (int i = 0; i < which.size(); i++) {
+    int index = which.at(i) -1; //zero index
+    QPDFPageDocumentHelper(outpdf).addPage(pages.at(index), false);
+  }
+  QPDFWriter outpdfw(outpdf, outfile.c_str());
+  outpdfw.setStaticID(true); // for testing only
+  outpdfw.setStreamDataMode(qpdf_s_uncompress);
+  outpdfw.write();
+  return outfile;
 }

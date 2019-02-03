@@ -5,21 +5,47 @@
 
 using namespace Rcpp;
 
-// cpp_split_pdf
-Rcpp::CharacterVector cpp_split_pdf(char const* infile, std::string outprefix);
-RcppExport SEXP _qpdf_cpp_split_pdf(SEXP infileSEXP, SEXP outprefixSEXP) {
+// cpp_pdf_length
+int cpp_pdf_length(char const* infile);
+RcppExport SEXP _qpdf_cpp_pdf_length(SEXP infileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_length(infile));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_pdf_split
+Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix);
+RcppExport SEXP _qpdf_cpp_pdf_split(SEXP infileSEXP, SEXP outprefixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
     Rcpp::traits::input_parameter< std::string >::type outprefix(outprefixSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_split_pdf(infile, outprefix));
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_split(infile, outprefix));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_pdf_select
+Rcpp::CharacterVector cpp_pdf_select(char const* infile, std::string outfile, Rcpp::IntegerVector which);
+RcppExport SEXP _qpdf_cpp_pdf_select(SEXP infileSEXP, SEXP outfileSEXP, SEXP whichSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
+    Rcpp::traits::input_parameter< std::string >::type outfile(outfileSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type which(whichSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_select(infile, outfile, which));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_qpdf_cpp_split_pdf", (DL_FUNC) &_qpdf_cpp_split_pdf, 2},
+    {"_qpdf_cpp_pdf_length", (DL_FUNC) &_qpdf_cpp_pdf_length, 1},
+    {"_qpdf_cpp_pdf_split", (DL_FUNC) &_qpdf_cpp_pdf_split, 2},
+    {"_qpdf_cpp_pdf_select", (DL_FUNC) &_qpdf_cpp_pdf_select, 3},
     {NULL, NULL, 0}
 };
 
