@@ -1,0 +1,34 @@
+PKG_CPPFLAGS = -Iinclude -Ilibqpdf
+PKG_LIBS = -Llibqpdf -lstatqpdf -ljpeg
+
+LIBQPDF = libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/BufferInputSource.o \
+		libqpdf/ClosedFileInputSource.o libqpdf/ContentNormalizer.o libqpdf/FileInputSource.o \
+		libqpdf/InputSource.o libqpdf/InsecureRandomDataProvider.o libqpdf/JSON.o libqpdf/MD5.o \
+		libqpdf/OffsetInputSource.o libqpdf/Pipeline.o libqpdf/Pl_AES_PDF.o libqpdf/Pl_ASCII85Decoder.o \
+		libqpdf/Pl_ASCIIHexDecoder.o libqpdf/Pl_Buffer.o libqpdf/Pl_Concatenate.o libqpdf/Pl_Count.o \
+		libqpdf/Pl_DCT.o libqpdf/Pl_Discard.o libqpdf/Pl_Flate.o libqpdf/Pl_LZWDecoder.o libqpdf/Pl_MD5.o \
+		libqpdf/Pl_PNGFilter.o libqpdf/Pl_QPDFTokenizer.o libqpdf/Pl_RC4.o libqpdf/Pl_RunLength.o \
+		libqpdf/Pl_SHA2.o libqpdf/Pl_StdioFile.o libqpdf/Pl_TIFFPredictor.o libqpdf/QPDF_Array.o \
+		libqpdf/QPDF_Bool.o libqpdf/QPDF_Dictionary.o libqpdf/QPDF_encryption.o libqpdf/QPDF_InlineImage.o \
+		libqpdf/QPDF_Integer.o libqpdf/QPDF_linearization.o libqpdf/QPDF_Name.o libqpdf/QPDF_Null.o \
+		libqpdf/QPDF_Operator.o libqpdf/QPDF_optimization.o libqpdf/QPDF_pages.o libqpdf/QPDF_Real.o \
+		libqpdf/QPDF_Reserved.o libqpdf/QPDF_Stream.o libqpdf/QPDF_String.o libqpdf/qpdf-c.o libqpdf/QPDF.o \
+		libqpdf/QPDFAcroFormDocumentHelper.o libqpdf/QPDFAnnotationObjectHelper.o libqpdf/QPDFExc.o \
+		libqpdf/QPDFFormFieldObjectHelper.o libqpdf/QPDFMatrix.o libqpdf/QPDFNameTreeObjectHelper.o \
+		libqpdf/QPDFNumberTreeObjectHelper.o libqpdf/QPDFObject.o libqpdf/QPDFObjectHandle.o \
+		libqpdf/QPDFObjGen.o libqpdf/QPDFOutlineDocumentHelper.o libqpdf/QPDFOutlineObjectHelper.o \
+		libqpdf/QPDFPageDocumentHelper.o libqpdf/QPDFPageLabelDocumentHelper.o libqpdf/QPDFPageObjectHelper.o \
+		libqpdf/QPDFSystemError.o libqpdf/QPDFTokenizer.o libqpdf/QPDFWriter.o libqpdf/QPDFXRefEntry.o \
+		libqpdf/QTC.o libqpdf/QUtil.o libqpdf/RC4.o libqpdf/rijndael.o libqpdf/SecureRandomDataProvider.o \
+		libqpdf/sha2.o libqpdf/sha2big.o
+
+all: clean
+STATLIB = libqpdf/libstatqpdf.a
+
+$(SHLIB): $(STATLIB)
+
+$(STATLIB): $(LIBQPDF)
+	$(AR) rcs $(STATLIB) $(LIBQPDF)
+
+clean:
+	rm -f  $(SHLIB) $(STATLIB)
