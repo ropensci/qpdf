@@ -24,6 +24,8 @@ pdf_length <- function(input){
 
 #' @export
 #' @rdname qpdf
+#' @param pages a vector with page numbers so select. Negative numbers
+#' means removing those pages (same as R indexing)
 pdf_select <- function(input, pages = 1, output = NULL){
   input <- normalizePath(input, mustWork = TRUE)
   if(!length(output))

@@ -22,6 +22,9 @@ pdf_compress(input, output = NULL)
 \item{input}{path to the input pdf file}
 
 \item{output}{base path of the output file(s)}
+
+\item{pages}{a vector with page numbers so select. Negative numbers
+means removing those pages (same as R indexing)}
 }
 \description{
 Split a pdf file in multiple pages.
