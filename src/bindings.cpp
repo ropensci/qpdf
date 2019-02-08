@@ -10,7 +10,7 @@ static QPDF read_pdf_with_password(char const* infile, char const* password){
   try {
     pdf.processFile(infile, password);
   } catch(const std::exception& e){
-    if (strstr(e.what(), "password") != NULL) {
+    if (strlen(password) == 0 && strstr(e.what(), "password") != NULL) {
       Rcpp::Function askpass = Rcpp::Environment::namespace_env("qpdf")["password_callback"];
       Rcpp::String value = askpass("Please enter password to open PDF file");
 

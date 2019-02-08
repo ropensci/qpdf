@@ -6,5 +6,6 @@ test_that("password callback works", {
   expect_error(pdf_compress(pdf_file, tempfile()))
   options(askpass = function(...){'test'})
   expect_is(pdf_compress(pdf_file, tempfile()), 'character')
-  expect_error(pdf_compress(pdf_file, tempfile()))
+  expect_error(pdf_compress(pdf_file, tempfile(), password = 'wrong'))
+  options(askpass = NULL)
 })
