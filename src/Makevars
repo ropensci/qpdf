@@ -1,5 +1,6 @@
 PKG_CPPFLAGS = -Iinclude -Ilibqpdf
 PKG_LIBS = -Llibqpdf -lstatqpdf -ljpeg -lz
+CXX_STD = CXX11
 
 LIBQPDF = libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/BufferInputSource.o \
 		libqpdf/ClosedFileInputSource.o libqpdf/ContentNormalizer.o libqpdf/FileInputSource.o \
@@ -22,7 +23,7 @@ LIBQPDF = libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/Buffe
 		libqpdf/QTC.o libqpdf/QUtil.o libqpdf/RC4.o libqpdf/rijndael.o libqpdf/SecureRandomDataProvider.o \
 		libqpdf/sha2.o libqpdf/sha2big.o
 
-all: clean
+#all: clean
 STATLIB = libqpdf/libstatqpdf.a
 
 $(SHLIB): $(STATLIB)
