@@ -5,3 +5,4 @@
 appveyor.yml
 \.o$
 \.a$
+README.md
