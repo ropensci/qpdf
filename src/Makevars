@@ -1,5 +1,5 @@
 PKG_CPPFLAGS = -Iinclude -Ilibqpdf
-PKG_LIBS = -Llibqpdf -lstatqpdf -ljpeg
+PKG_LIBS = -Llibqpdf -lstatqpdf -ljpeg -lz
 
 LIBQPDF = libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/BufferInputSource.o \
 		libqpdf/ClosedFileInputSource.o libqpdf/ContentNormalizer.o libqpdf/FileInputSource.o \
