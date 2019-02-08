@@ -5,10 +5,31 @@
 #include <string>
 #include <Rcpp.h>
 
-// [[Rcpp::export]]
-int cpp_pdf_length(char const* infile){
+static QPDF read_pdf_with_password(char const* infile, char const* password){
   QPDF pdf;
-  pdf.processFile(infile);
+  try {
+    pdf.processFile(infile, password);
+  } catch(const std::exception& e){
+    if (strstr(e.what(), "password") != NULL) {
+      Rcpp::Function askpass = Rcpp::Environment::namespace_env("qpdf")["password_callback"];
+      Rcpp::String value = askpass("Please enter password to open PDF file");
+
+      //this is only for testing the new password */
+      QPDF pdf2;
+      pdf2.processFile(infile, value.get_cstring());
+
+      //actually read it
+      pdf.processFile(infile, value.get_cstring());
+    } else {
+      throw;
+    }
+  }
+  return pdf;
+}
+
+// [[Rcpp::export]]
+int cpp_pdf_length(char const* infile, char const* password){
+  QPDF pdf = read_pdf_with_password(infile, password);
   QPDFObjectHandle root = pdf.getRoot();
   QPDFObjectHandle pages = root.getKey("/Pages");
   QPDFObjectHandle count = pages.getKey("/Count");
@@ -16,9 +37,8 @@ int cpp_pdf_length(char const* infile){
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix){
-  QPDF inpdf;
-  inpdf.processFile(infile);
+Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix, char const* password){
+  QPDF inpdf = read_pdf_with_password(infile, password);
   std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
   Rcpp::CharacterVector output(pages.size());
   for (int i = 0; i < pages.size(); i++) {
@@ -36,9 +56,9 @@ Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix){
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_select(char const* infile, char const* outfile, Rcpp::IntegerVector which){
-  QPDF inpdf;
-  inpdf.processFile(infile);
+Rcpp::CharacterVector cpp_pdf_select(char const* infile, char const* outfile,
+                                     Rcpp::IntegerVector which, char const* password){
+  QPDF inpdf = read_pdf_with_password(infile, password);
   std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
   QPDF outpdf;
   outpdf.emptyPDF();
@@ -54,12 +74,12 @@ Rcpp::CharacterVector cpp_pdf_select(char const* infile, char const* outfile, Rc
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const* outfile){
+Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const* outfile,
+                                      char const* password){
   QPDF outpdf;
   outpdf.emptyPDF();
   for (int i = 0; i < infiles.size(); i++) {
-    QPDF inpdf;
-    inpdf.processFile(infiles.at(i));
+    QPDF inpdf = read_pdf_with_password(infiles.at(i), password);
     std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
     for (int i = 0; i < pages.size(); i++) {
       QPDFPageDocumentHelper(outpdf).addPage(pages.at(i), false);
@@ -73,9 +93,8 @@ Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const*
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile){
-  QPDF inpdf;
-  inpdf.processFile(infile);
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile, char const* password){
+  QPDF inpdf = read_pdf_with_password(infile, password);
   QPDFWriter outpdfw(inpdf, outfile);
   outpdfw.setStaticID(true); // for testing only
   outpdfw.setStreamDataMode(qpdf_s_compress);

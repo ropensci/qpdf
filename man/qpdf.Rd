@@ -8,20 +8,22 @@
 \alias{pdf_compress}
 \title{Split PDF}
 \usage{
-pdf_split(input, output = NULL)
+pdf_split(input, output = NULL, password = "")
 
-pdf_length(input)
+pdf_length(input, password = "")
 
-pdf_select(input, pages = 1, output = NULL)
+pdf_select(input, pages = 1, output = NULL, password = "")
 
-pdf_combine(input, output = NULL)
+pdf_combine(input, output = NULL, password = "")
 
-pdf_compress(input, output = NULL)
+pdf_compress(input, output = NULL, password = "")
 }
 \arguments{
 \item{input}{path to the input pdf file}
 
 \item{output}{base path of the output file(s)}
+
+\item{password}{string or callback function with password to open pdf}
 
 \item{pages}{a vector with page numbers so select. Negative numbers
 means removing those pages (same as R indexing)}
