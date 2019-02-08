@@ -3,3 +3,5 @@
 ^\.Rproj\.user$
 .travis.yml
 appveyor.yml
+\.o$
+\.a$

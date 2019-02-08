@@ -11,7 +11,7 @@ Description: Binary transformations of PDF files such as split, combine, and com
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: Rcpp
+Imports: Rcpp, askpass
 LinkingTo: Rcpp
 RoxygenNote: 6.1.1
 Suggests: 
