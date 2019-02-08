@@ -16,7 +16,7 @@ pdf_select(input, pages = 1, output = NULL, password = "")
 
 pdf_combine(input, output = NULL, password = "")
 
-pdf_compress(input, output = NULL, password = "")
+pdf_compress(input, output = NULL, linearize = FALSE, password = "")
 }
 \arguments{
 \item{input}{path to the input pdf file}
@@ -27,6 +27,8 @@ pdf_compress(input, output = NULL, password = "")
 
 \item{pages}{a vector with page numbers so select. Negative numbers
 means removing those pages (same as R indexing)}
+
+\item{linearize}{enable pdf linearization (streamable pdf)}
 }
 \description{
 Split a pdf file in multiple pages.

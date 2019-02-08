@@ -52,12 +52,13 @@ pdf_combine <- function(input, output = NULL, password = ""){
 
 #' @export
 #' @rdname qpdf
-pdf_compress <- function(input, output = NULL, password = ""){
+#' @param linearize enable pdf linearization (streamable pdf)
+pdf_compress <- function(input, output = NULL, linearize = FALSE, password = ""){
   input <- normalizePath(input, mustWork = TRUE)
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
-  cpp_pdf_compress(input, output, password)
+  cpp_pdf_compress(input, output, linearize, password)
 }
 
 password_callback <- function(...){

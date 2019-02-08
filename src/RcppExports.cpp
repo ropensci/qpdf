@@ -58,15 +58,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_pdf_compress
-Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile, char const* password);
-RcppExport SEXP _qpdf_cpp_pdf_compress(SEXP infileSEXP, SEXP outfileSEXP, SEXP passwordSEXP) {
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile, bool linearize, char const* password);
+RcppExport SEXP _qpdf_cpp_pdf_compress(SEXP infileSEXP, SEXP outfileSEXP, SEXP linearizeSEXP, SEXP passwordSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
     Rcpp::traits::input_parameter< char const* >::type outfile(outfileSEXP);
+    Rcpp::traits::input_parameter< bool >::type linearize(linearizeSEXP);
     Rcpp::traits::input_parameter< char const* >::type password(passwordSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_pdf_compress(infile, outfile, password));
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_compress(infile, outfile, linearize, password));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -76,7 +77,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qpdf_cpp_pdf_split", (DL_FUNC) &_qpdf_cpp_pdf_split, 3},
     {"_qpdf_cpp_pdf_select", (DL_FUNC) &_qpdf_cpp_pdf_select, 4},
     {"_qpdf_cpp_pdf_combine", (DL_FUNC) &_qpdf_cpp_pdf_combine, 3},
-    {"_qpdf_cpp_pdf_compress", (DL_FUNC) &_qpdf_cpp_pdf_compress, 3},
+    {"_qpdf_cpp_pdf_compress", (DL_FUNC) &_qpdf_cpp_pdf_compress, 4},
     {NULL, NULL, 0}
 };
 

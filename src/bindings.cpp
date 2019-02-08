@@ -93,11 +93,13 @@ Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const*
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile, char const* password){
+Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile,
+                                       bool linearize, char const* password){
   QPDF inpdf = read_pdf_with_password(infile, password);
   QPDFWriter outpdfw(inpdf, outfile);
   outpdfw.setStaticID(true); // for testing only
   outpdfw.setStreamDataMode(qpdf_s_compress);
+  outpdfw.setLinearization(linearize);
   outpdfw.write();
   return outfile;
 }

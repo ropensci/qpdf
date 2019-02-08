@@ -17,7 +17,7 @@ cpp_pdf_combine <- function(infiles, outfile, password) {
     .Call('_qpdf_cpp_pdf_combine', PACKAGE = 'qpdf', infiles, outfile, password)
 }
 
-cpp_pdf_compress <- function(infile, outfile, password) {
-    .Call('_qpdf_cpp_pdf_compress', PACKAGE = 'qpdf', infile, outfile, password)
+cpp_pdf_compress <- function(infile, outfile, linearize, password) {
+    .Call('_qpdf_cpp_pdf_compress', PACKAGE = 'qpdf', infile, outfile, linearize, password)
 }
 
