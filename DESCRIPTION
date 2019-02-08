@@ -10,6 +10,9 @@ Description: Content-preserving transformations transformations of PDF files suc
     not read actual content from PDF files: to extract text and data you need the
     'pdftools' package.
 License: MIT + file LICENSE
+URL: https://github.com/ropensci/qpdf (devel),
+    http://qpdf.sourceforge.net/ (upstream)
+BugReports: https://github.com/ropensci/qpdf/issues
 Encoding: UTF-8
 LazyData: true
 Imports: Rcpp, askpass
