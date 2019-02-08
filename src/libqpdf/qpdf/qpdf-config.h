@@ -11,7 +11,9 @@
 #define HAVE_FSEEKO 1
 
 /* Define to 1 if you have the `fseeko64' function. */
-/* #undef HAVE_FSEEKO64 */
+#ifdef WIN32_
+#define HAVE_FSEEKO64 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -20,7 +22,9 @@
 #define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `random' function. */
+#ifndef _WIN32
 #define HAVE_RANDOM 1
+#endif
 
 /* Define to 1 (and set RANDOM_DEVICE) if a random device is available */
 #define HAVE_RANDOM_DEVICE 1
