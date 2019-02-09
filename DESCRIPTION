@@ -18,6 +18,7 @@ Encoding: UTF-8
 LazyData: true
 Imports: Rcpp, askpass
 LinkingTo: Rcpp
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests: 
     testthat

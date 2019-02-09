@@ -1,15 +1,29 @@
-#' Split PDF
+#' Split, Combine and Compress PDF Files
 #'
-#' Split a pdf file in multiple pages.
+#' Content-preserving transformations transformations of PDF files. Note qpdf does
+#' not read actual content from PDF files: to extract text and data you need the
+#' pdftools package.
+#'
+#' Currently the package provides the following wrappers:
+#'
+#' - [pdf_length]: show the number of pages in a pdf
+#' - [pdf_split]: split a single pdf into separate files, one for each page
+#' - [pdf_subset]: create a new pdf with a subset of the input pages
+#' - [pdf_combine]: join several pdf files into one
+#' - [pdf_compress]: compress or linearize a pdf file
+#'
+#' These functions to not modify the `input` file: they create new output file(s)
+#' and return the path(s) to these newly created files.
 #'
 #' @export
+#' @name qpdf
 #' @rdname qpdf
 #' @useDynLib qpdf
 #' @importFrom Rcpp sourceCpp
 #' @importFrom askpass askpass
 #' @param input path to the input pdf file
 #' @param output base path of the output file(s)
-#' @param password string or callback function with password to open pdf
+#' @param password string with password to open pdf file
 pdf_split <- function(input, output = NULL, password = ""){
   input <- normalizePath(input, mustWork = TRUE)
   if(!length(output))
@@ -28,7 +42,7 @@ pdf_length <- function(input, password = ""){
 #' @rdname qpdf
 #' @param pages a vector with page numbers so select. Negative numbers
 #' means removing those pages (same as R indexing)
-pdf_select <- function(input, pages = 1, output = NULL, password = ""){
+pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
   input <- normalizePath(input, mustWork = TRUE)
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
