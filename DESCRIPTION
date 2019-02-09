@@ -2,14 +2,15 @@ Package: qpdf
 Type: Package
 Title: Split, Combine and Compress PDF Files
 Version: 0.1
-Authors@R: person("Jeroen", "Ooms", role = c("aut", "cre"), 
-    email = "jeroen@berkeley.edu", comment = c(ORCID = "0000-0002-4035-0289"))
+Authors@R: c(person("Jeroen", "Ooms", role = c("aut", "cre"), 
+    email = "jeroen@berkeley.edu", comment = c(ORCID = "0000-0002-4035-0289")),
+        person("Jay Berkenbilt", role = "cph", comment = "Author of libqpdf"))
 Description: Content-preserving transformations transformations of PDF files such 
     as split, combine, and compress. This package interfaces directly to the 'qpdf' 
     C++ API and does not require any command line utilities. Note that qpdf does
     not read actual content from PDF files: to extract text and data you need the
     'pdftools' package.
-License: MIT + file LICENSE
+License: Apache License 2.0
 URL: https://github.com/ropensci/qpdf (devel),
     http://qpdf.sourceforge.net/ (upstream)
 BugReports: https://github.com/ropensci/qpdf/issues
