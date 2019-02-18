@@ -21,19 +21,16 @@
 #' @useDynLib qpdf
 #' @importFrom Rcpp sourceCpp
 #' @importFrom askpass askpass
-#' @param input path to the input pdf file
+#' @param input path or url to the input pdf file
 #' @param output base path of the output file(s)
 #' @param password string with password to open pdf file
-#' @examples # Example pdf file
-#' input <- file.path(R.home('doc'), 'manual/R-intro.pdf')
-#' pdf_length(input)
-#'
-#' # extract some pages
-#' pdf_subset(input, pages = 1:3, output = "output.pdf")
+#' @examples # extract some pages
+#' pdf_subset('https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf',
+#'   pages = 1:3, output = "output.pdf")
 #' pdf_length("output.pdf")
 #' unlink("output.pdf")
 pdf_split <- function(input, output = NULL, password = ""){
-  input <- normalizePath(input, mustWork = TRUE)
+  input <- get_input(input)
   if(!length(output))
     output <- sub("\\.pdf$", "", input)
   cpp_pdf_split(input, output, password)
@@ -42,7 +39,7 @@ pdf_split <- function(input, output = NULL, password = ""){
 #' @export
 #' @rdname qpdf
 pdf_length <- function(input, password = ""){
-  input <- normalizePath(input, mustWork = TRUE)
+  input <- get_input(input)
   cpp_pdf_length(input, password)
 }
 
@@ -51,7 +48,7 @@ pdf_length <- function(input, password = ""){
 #' @param pages a vector with page numbers so select. Negative numbers
 #' means removing those pages (same as R indexing)
 pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
-  input <- normalizePath(input, mustWork = TRUE)
+  input <- get_input(input)
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
@@ -65,7 +62,7 @@ pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
 #' @export
 #' @rdname qpdf
 pdf_combine <- function(input, output = NULL, password = ""){
-  input <- normalizePath(input, mustWork = TRUE)
+  input <- get_input_multi(input)
   if(!length(output))
     output <- sub("\\.pdf$", "_combined.pdf", input[1])
   output <- normalizePath(output, mustWork = FALSE)
@@ -76,7 +73,7 @@ pdf_combine <- function(input, output = NULL, password = ""){
 #' @rdname qpdf
 #' @param linearize enable pdf linearization (streamable pdf)
 pdf_compress <- function(input, output = NULL, linearize = FALSE, password = ""){
-  input <- normalizePath(input, mustWork = TRUE)
+  input <- get_input(input)
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
@@ -85,4 +82,19 @@ pdf_compress <- function(input, output = NULL, linearize = FALSE, password = "")
 
 password_callback <- function(...){
   paste(askpass::askpass(...), collapse = "")
+}
+
+get_input <- function(path){
+  if(length(path) != 1)
+    stop("input should contain exactly one file")
+  if(grepl("^https?://", path)){
+    tmp <- file.path(tempdir(), basename(path))
+    curl::curl_download(path, tmp)
+    path <- tmp
+  }
+  normalizePath(path, mustWork = TRUE)
+}
+
+get_input_multi <- function(path){
+  vapply(path, get_input_one, character(1))
 }

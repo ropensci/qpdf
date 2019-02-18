@@ -20,7 +20,7 @@ pdf_combine(input, output = NULL, password = "")
 pdf_compress(input, output = NULL, linearize = FALSE, password = "")
 }
 \arguments{
-\item{input}{path to the input pdf file}
+\item{input}{path or url to the input pdf file}
 
 \item{output}{base path of the output file(s)}
 
@@ -50,12 +50,9 @@ These functions to not modify the \code{input} file: they create new output file
 and return the path(s) to these newly created files.
 }
 \examples{
-# Example pdf file
-input <- file.path(R.home('doc'), 'manual/R-intro.pdf')
-pdf_length(input)
-
 # extract some pages
-pdf_subset(input, pages = 1:3, output = "output.pdf")
+pdf_subset('https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf',
+  pages = 1:3, output = "output.pdf")
 pdf_length("output.pdf")
 unlink("output.pdf")
 }
