@@ -96,5 +96,5 @@ get_input <- function(path){
 }
 
 get_input_multi <- function(path){
-  vapply(path, get_input_one, character(1))
+  vapply(path, get_input, character(1))
 }
