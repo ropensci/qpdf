@@ -49,3 +49,13 @@ Currently the package provides the following wrappers:
 These functions to not modify the \code{input} file: they create new output file(s)
 and return the path(s) to these newly created files.
 }
+\examples{
+# Example pdf file
+input <- file.path(R.home('doc'), 'manual/R-intro.pdf')
+pdf_length(input)
+
+# extract some pages
+pdf_subset(input, pages = 1:3, output = "output.pdf")
+pdf_length("output.pdf")
+unlink("output.pdf")
+}

@@ -24,6 +24,14 @@
 #' @param input path to the input pdf file
 #' @param output base path of the output file(s)
 #' @param password string with password to open pdf file
+#' @examples # Example pdf file
+#' input <- file.path(R.home('doc'), 'manual/R-intro.pdf')
+#' pdf_length(input)
+#'
+#' # extract some pages
+#' pdf_subset(input, pages = 1:3, output = "output.pdf")
+#' pdf_length("output.pdf")
+#' unlink("output.pdf")
 pdf_split <- function(input, output = NULL, password = ""){
   input <- normalizePath(input, mustWork = TRUE)
   if(!length(output))
