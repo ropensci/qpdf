@@ -25,10 +25,11 @@
 #' @param output base path of the output file(s)
 #' @param password string with password to open pdf file
 #' @examples # extract some pages
+#' pdf_file <- file.path(tempdir(), "output.pdf")
 #' pdf_subset('https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf',
-#'   pages = 1:3, output = "output.pdf")
-#' pdf_length("output.pdf")
-#' unlink("output.pdf")
+#'   pages = 1:3, output = pdf_file)
+#' pdf_length(pdf_file)
+#' unlink(pdf_file)
 pdf_split <- function(input, output = NULL, password = ""){
   input <- get_input(input)
   if(!length(output))

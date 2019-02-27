@@ -51,8 +51,9 @@ and return the path(s) to these newly created files.
 }
 \examples{
 # extract some pages
+pdf_file <- file.path(tempdir(), "output.pdf")
 pdf_subset('https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf',
-  pages = 1:3, output = "output.pdf")
-pdf_length("output.pdf")
-unlink("output.pdf")
+  pages = 1:3, output = pdf_file)
+pdf_length(pdf_file)
+unlink(pdf_file)
 }
