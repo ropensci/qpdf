@@ -1,5 +1,7 @@
-PKG_CPPFLAGS = -Iinclude -Ilibqpdf
+ifeq ($(shell uname), Linux)
 CXX_VISIBILITY ?= $(C_VISIBILITY)
+endif
+PKG_CPPFLAGS = -Iinclude -Ilibqpdf
 PKG_CXXFLAGS = $(CXX_VISIBILITY)
 PKG_CFLAGS = $(C_VISIBILITY)
 CXX_STD = CXX11
