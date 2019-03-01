@@ -8,6 +8,8 @@ matrix:
   include:
     - dist: trusty
     - dist: xenial
+    - dist: xenial
+      r: 3.4
     - os: osx
     - os: osx
       osx_image: xcode7.3
