@@ -8,11 +8,9 @@ matrix:
   include:
     - dist: trusty
     - dist: xenial
-    - dist: xenial
+    - os: osx
+      brew_packages: qpdf
       env: EXTERNAL_QPDF=true
-      addons:
-        apt:
-          packages: libqpdf-dev
     - os: osx
     - os: osx
       osx_image: xcode7.3
