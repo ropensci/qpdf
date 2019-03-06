@@ -9,12 +9,13 @@ matrix:
     - dist: trusty
     - dist: xenial
     - dist: xenial
-      r: 3.4
+      env: EXTERNAL_QPDF=true
+      addons:
+        apt:
+          packages: libqpdf-dev
     - os: osx
     - os: osx
       osx_image: xcode7.3
-
-#brew_packages: jpeg
 
 notifications:
   email:

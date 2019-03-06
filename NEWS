@@ -1,0 +1,6 @@
+1.1
+  - Add configure script to allow building with system libqpdf
+  - Fix build on Solaris
+
+1.0
+  - Initial release
