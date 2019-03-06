@@ -4,10 +4,9 @@ if [ -z "$EXTERNAL_QPDF" ]; then
   exit 0
 fi
 
-# Only for Linux distro's that insist on system libqpdf:
-PKG_CONFIG_NAME="libqpdf"
-PKGCONFIG_CFLAGS=`pkg-config --cflags --silence-errors $PKG_CONFIG_NAME`
-PKGCONFIG_LIBS=`pkg-config --libs $PKG_CONFIG_NAME`
+# For distro's that prefer external libqpdf (>= 8.1.0)
+PKGCONFIG_CFLAGS=`pkg-config --cflags --silence-errors libqpdf`
+PKGCONFIG_LIBS=`pkg-config --libs libqpdf`
 
 # Overwrite Makevars
 echo "PKG_CPPFLAGS=$PKGCONFIG_CFLAGS" > src/Makevars
