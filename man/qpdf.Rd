@@ -26,7 +26,7 @@ pdf_compress(input, output = NULL, linearize = FALSE, password = "")
 
 \item{password}{string with password to open pdf file}
 
-\item{pages}{a vector with page numbers so select. Negative numbers
+\item{pages}{a vector with page numbers to select. Negative numbers
 means removing those pages (same as R indexing)}
 
 \item{linearize}{enable pdf linearization (streamable pdf)}

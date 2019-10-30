@@ -46,7 +46,7 @@ pdf_length <- function(input, password = ""){
 
 #' @export
 #' @rdname qpdf
-#' @param pages a vector with page numbers so select. Negative numbers
+#' @param pages a vector with page numbers to select. Negative numbers
 #' means removing those pages (same as R indexing)
 pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
   input <- get_input(input)
