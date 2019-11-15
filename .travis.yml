@@ -14,8 +14,4 @@ matrix:
     - os: osx
     - os: osx
       osx_image: xcode7.3
-
-notifications:
-  email:
-    on_success: change
-    on_failure: change
+      before_install: sed -i.bak 's/-isysroot /-I/g' $(R RHOME)/etc/Makeconf
