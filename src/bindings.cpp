@@ -103,3 +103,26 @@ Rcpp::CharacterVector cpp_pdf_compress(char const* infile, char const* outfile,
   outpdfw.write();
   return outfile;
 }
+
+// [[Rcpp::export]]
+Rcpp::CharacterVector cpp_pdf_rotate_pages(char const* infile, char const* outfile,
+                                           Rcpp::IntegerVector which, int angle, bool relative,
+                                           char const* password){
+  QPDF inpdf = read_pdf_with_password(infile, password);
+  std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
+  int npages = pages.size();
+  QPDF outpdf;
+  outpdf.emptyPDF();
+  for (int i = 0; i < npages; i++) {
+    if (std::find(which.begin(), which.end(), i + 1) != which.end()) {
+      pages.at(i).rotatePage(angle, relative);
+    }
+    QPDFPageDocumentHelper(outpdf).addPage(pages.at(i), false);
+  }
+  QPDFWriter outpdfw(outpdf, outfile);
+  outpdfw.setStaticID(true); // for testing only
+  outpdfw.setStreamDataMode(qpdf_s_preserve);
+  outpdfw.write();
+  return outfile;
+}
+

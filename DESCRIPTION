@@ -4,6 +4,7 @@ Title: Split, Combine and Compress PDF Files
 Version: 1.1
 Authors@R: c(person("Jeroen", "Ooms", role = c("aut", "cre"), 
     email = "jeroen@berkeley.edu", comment = c(ORCID = "0000-0002-4035-0289")),
+        person("Ben", "Raymond", role = "ctb"),
         person("Jay Berkenbilt", role = "cph", comment = "Author of libqpdf"))
 Description: Content-preserving transformations transformations of PDF files such 
     as split, combine, and compress. This package interfaces directly to the 'qpdf' 

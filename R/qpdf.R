@@ -11,8 +11,9 @@
 #' - [pdf_subset]: create a new pdf with a subset of the input pages
 #' - [pdf_combine]: join several pdf files into one
 #' - [pdf_compress]: compress or linearize a pdf file
+#' - [pdf_rotate_pages]: rotate selected pages
 #'
-#' These functions to not modify the `input` file: they create new output file(s)
+#' These functions do not modify the `input` file: they create new output file(s)
 #' and return the path(s) to these newly created files.
 #'
 #' @export
@@ -46,7 +47,7 @@ pdf_length <- function(input, password = ""){
 
 #' @export
 #' @rdname qpdf
-#' @param pages a vector with page numbers so select. Negative numbers
+#' @param pages a vector with page numbers to select. Negative numbers
 #' means removing those pages (same as R indexing)
 pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
   input <- get_input(input)
@@ -79,6 +80,23 @@ pdf_compress <- function(input, output = NULL, linearize = FALSE, password = "")
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
   cpp_pdf_compress(input, output, linearize, password)
+}
+
+#' @export
+#' @rdname qpdf
+#' @param pages a vector with page numbers to rotate
+#' @param angle rotation angle in degrees (positive = clockwise)
+#' @param relative if `TRUE`, pages are rotated relative to their current orientation. If `FALSE`, rotation is absolute (0 = portrait, 90 = landscape, rotated 90 degrees clockwise from portrait)
+pdf_rotate_pages <- function(input, pages, angle = 90, relative = FALSE, output = NULL, password = ""){
+  input <- get_input(input)
+  if(!length(output))
+    output <- sub("\\.pdf$", "_output.pdf", input)
+  output <- normalizePath(output, mustWork = FALSE)
+  size <- pdf_length(input)
+  pages <- seq_len(size)[pages]
+  if(any(is.na(pages)) || !length(pages))
+    stop("Selected pages out of range")
+  cpp_pdf_rotate_pages(input, output, pages, angle, relative, password)
 }
 
 password_callback <- function(...){
