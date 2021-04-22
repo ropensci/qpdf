@@ -1,10 +1,10 @@
 #' Split, Combine and Compress PDF Files
 #'
-#' Content-preserving transformations transformations of PDF files. Note qpdf does
-#' not read actual content from PDF files: to extract text and data you need the
-#' pdftools package.
+#' Content-preserving transformations of PDF files. Note that qpdf does not
+#' read actual content from PDF files: to extract text and data you need the
+#' [pdftools](https://docs.ropensci.org/pdftools/) package.
 #'
-#' Currently the package provides the following wrappers:
+#' Currently this package provides the following wrappers:
 #'
 #' - [pdf_length]: show the number of pages in a pdf
 #' - [pdf_split]: split a single pdf into separate files, one for each page
@@ -12,8 +12,8 @@
 #' - [pdf_combine]: join several pdf files into one
 #' - [pdf_compress]: compress or linearize a pdf file
 #'
-#' These functions to not modify the `input` file: they create new output file(s)
-#' and return the path(s) to these newly created files.
+#' These functions do not modify the `input` file: instead they create
+#' new output file(s) and return the path(s) to these newly created files.
 #'
 #' @export
 #' @name qpdf
