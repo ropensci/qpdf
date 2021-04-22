@@ -54,7 +54,7 @@ pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
-  size <- pdf_length(input)
+  size <- pdf_length(input, password = password)
   pages <- seq_len(size)[pages]
   if(any(is.na(pages)) || !length(pages))
     stop("Selected pages out of range")
@@ -92,7 +92,7 @@ pdf_rotate_pages <- function(input, pages, angle = 90, relative = FALSE, output 
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
-  size <- pdf_length(input)
+  size <- pdf_length(input, password = password)
   pages <- seq_len(size)[pages]
   if(any(is.na(pages)) || !length(pages))
     stop("Selected pages out of range")
