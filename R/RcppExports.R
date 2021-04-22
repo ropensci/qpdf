@@ -21,3 +21,7 @@ cpp_pdf_compress <- function(infile, outfile, linearize, password) {
     .Call('_qpdf_cpp_pdf_compress', PACKAGE = 'qpdf', infile, outfile, linearize, password)
 }
 
+cpp_pdf_rotate_pages <- function(infile, outfile, which, angle, relative, password) {
+    .Call('_qpdf_cpp_pdf_rotate_pages', PACKAGE = 'qpdf', infile, outfile, which, angle, relative, password)
+}
+
