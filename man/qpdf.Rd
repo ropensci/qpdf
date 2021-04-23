@@ -7,6 +7,7 @@
 \alias{pdf_subset}
 \alias{pdf_combine}
 \alias{pdf_compress}
+\alias{pdf_rotate_pages}
 \title{Split, Combine and Compress PDF Files}
 \usage{
 pdf_split(input, output = NULL, password = "")
@@ -18,6 +19,15 @@ pdf_subset(input, pages = 1, output = NULL, password = "")
 pdf_combine(input, output = NULL, password = "")
 
 pdf_compress(input, output = NULL, linearize = FALSE, password = "")
+
+pdf_rotate_pages(
+  input,
+  pages,
+  angle = 90,
+  relative = FALSE,
+  output = NULL,
+  password = ""
+)
 }
 \arguments{
 \item{input}{path or url to the input pdf file}
@@ -26,10 +36,13 @@ pdf_compress(input, output = NULL, linearize = FALSE, password = "")
 
 \item{password}{string with password to open pdf file}
 
-\item{pages}{a vector with page numbers so select. Negative numbers
-means removing those pages (same as R indexing)}
+\item{pages}{a vector with page numbers to rotate}
 
 \item{linearize}{enable pdf linearization (streamable pdf)}
+
+\item{angle}{rotation angle in degrees (positive = clockwise)}
+
+\item{relative}{if \code{TRUE}, pages are rotated relative to their current orientation. If \code{FALSE}, rotation is absolute (0 = portrait, 90 = landscape, rotated 90 degrees clockwise from portrait)}
 }
 \description{
 Content-preserving transformations transformations of PDF files. Note qpdf does
@@ -44,9 +57,10 @@ Currently the package provides the following wrappers:
 \item \link{pdf_subset}: create a new pdf with a subset of the input pages
 \item \link{pdf_combine}: join several pdf files into one
 \item \link{pdf_compress}: compress or linearize a pdf file
+\item \link{pdf_rotate_pages}: rotate selected pages
 }
 
-These functions to not modify the \code{input} file: they create new output file(s)
+These functions do not modify the \code{input} file: they create new output file(s)
 and return the path(s) to these newly created files.
 }
 \examples{
