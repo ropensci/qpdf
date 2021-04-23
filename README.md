@@ -2,9 +2,7 @@
 
 > Split, Combine and Compress PDF files
 
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Build Status](https://travis-ci.org/ropensci/qpdf.svg?branch=master)](https://travis-ci.org/ropensci/qpdf)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/ropensci/qpdf?branch=master&svg=true)](https://ci.appveyor.com/project/jeroen/qpdf)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](httsp://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/qpdf)](http://cran.r-project.org/package=qpdf)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/qpdf)](http://cran.r-project.org/web/packages/qpdf/index.html)
 

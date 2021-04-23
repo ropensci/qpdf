@@ -1,7 +1,7 @@
 Package: qpdf
 Type: Package
 Title: Split, Combine and Compress PDF Files
-Version: 1.1
+Version: 1.2.0
 Authors@R: c(person("Jeroen", "Ooms", role = c("aut", "cre"), 
     email = "jeroen@berkeley.edu", comment = c(ORCID = "0000-0002-4035-0289")),
         person("Ben", "Raymond", role = "ctb"),
@@ -12,12 +12,11 @@ Description: Content-preserving transformations transformations of PDF files suc
     not read actual content from PDF files: to extract text and data you need the
     'pdftools' package.
 License: Apache License 2.0
-URL: https://docs.ropensci.org/qpdf (website),
+URL: https://docs.ropensci.org/qpdf/ (website),
     https://github.com/ropensci/qpdf (devel),
     http://qpdf.sourceforge.net/ (upstream)
 BugReports: https://github.com/ropensci/qpdf/issues
 Encoding: UTF-8
-LazyData: true
 Imports: Rcpp, askpass, curl
 LinkingTo: Rcpp
 Roxygen: list(markdown = TRUE)
