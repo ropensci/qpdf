@@ -6,6 +6,9 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/qpdf)](http://cran.r-project.org/package=qpdf)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/qpdf)](http://cran.r-project.org/web/packages/qpdf/index.html)
 
+Content-preserving transformations transformations of PDF files such as split, combine, and compress. This package interfaces directly to the 'qpdf' C++ API and does not require any command line utilities. Note that 'qpdf' does not read actual content from PDF files: to extract text and data you need the 'pdftools' package.
+
+
 ## Hello World
 
 All functions take one or more input and output pdf files.
