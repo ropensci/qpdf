@@ -10,8 +10,11 @@
 
 All functions take one or more input and output pdf files.
 
-```{r}
-> library(qpdf)
-> pdf_compress("~/Downloads/v71i02.pdf")
-[1] "/Users/jeroen/Downloads/v71i02_output.pdf"
+```r
+library(qpdf)
+pdf_compress("~/Downloads/v71i02.pdf")
 ```
+
+> ```
+> [1] "/Users/jeroen/Downloads/v71i02_output.pdf"
+> ```
