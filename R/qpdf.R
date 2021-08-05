@@ -33,7 +33,7 @@
 #' unlink(pdf_file)
 pdf_split <- function(input, output = NULL, password = ""){
   input <- get_input(input)
-  if(!length(output))
+  if(is.null(output))
     output <- sub("\\.pdf$", "", input)
   cpp_pdf_split(input, output, password)
 }
@@ -51,7 +51,7 @@ pdf_length <- function(input, password = ""){
 #' means removing those pages (same as R indexing)
 pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
   input <- get_input(input)
-  if(!length(output))
+  if(is.null(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
   size <- pdf_length(input, password = password)
@@ -65,7 +65,7 @@ pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
 #' @rdname qpdf
 pdf_combine <- function(input, output = NULL, password = ""){
   input <- get_input_multi(input)
-  if(!length(output))
+  if(is.null(output))
     output <- sub("\\.pdf$", "_combined.pdf", input[1])
   output <- normalizePath(output, mustWork = FALSE)
   cpp_pdf_combine(input, output, password)
@@ -76,7 +76,7 @@ pdf_combine <- function(input, output = NULL, password = ""){
 #' @param linearize enable pdf linearization (streamable pdf)
 pdf_compress <- function(input, output = NULL, linearize = FALSE, password = ""){
   input <- get_input(input)
-  if(!length(output))
+  if(is.null(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
   cpp_pdf_compress(input, output, linearize, password)
@@ -89,7 +89,7 @@ pdf_compress <- function(input, output = NULL, linearize = FALSE, password = "")
 #' @param relative if `TRUE`, pages are rotated relative to their current orientation. If `FALSE`, rotation is absolute (0 = portrait, 90 = landscape, rotated 90 degrees clockwise from portrait)
 pdf_rotate_pages <- function(input, pages, angle = 90, relative = FALSE, output = NULL, password = ""){
   input <- get_input(input)
-  if(!length(output))
+  if(is.null(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
   size <- pdf_length(input, password = password)
