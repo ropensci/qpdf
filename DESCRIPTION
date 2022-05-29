@@ -14,7 +14,7 @@ Description: Content-preserving transformations transformations of PDF files suc
 License: Apache License 2.0
 URL: https://docs.ropensci.org/qpdf/ (website),
     https://github.com/ropensci/qpdf (devel),
-    http://qpdf.sourceforge.net/ (upstream)
+    https://qpdf.sourceforge.io/ (upstream)
 BugReports: https://github.com/ropensci/qpdf/issues
 Encoding: UTF-8
 Imports: Rcpp, askpass, curl
