@@ -20,7 +20,7 @@ Encoding: UTF-8
 Imports: Rcpp, askpass, curl
 LinkingTo: Rcpp
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     testthat
 SystemRequirements: libjpeg

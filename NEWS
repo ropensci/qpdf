@@ -1,3 +1,6 @@
+1.2
+  - Donttest examples to comply with CRAN offline policy
+
 1.1
   - Add configure script to allow building with system libqpdf
   - Fix build on Solaris

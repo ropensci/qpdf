@@ -64,10 +64,12 @@ These functions do not modify the \code{input} file: they create new output file
 and return the path(s) to these newly created files.
 }
 \examples{
+\donttest{
 # extract some pages
 pdf_file <- file.path(tempdir(), "output.pdf")
 pdf_subset('https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf',
   pages = 1:3, output = pdf_file)
 pdf_length(pdf_file)
 unlink(pdf_file)
+}
 }
