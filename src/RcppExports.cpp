@@ -92,6 +92,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_pdf_overlay
+Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile, char const* outfile, char const* password);
+RcppExport SEXP _qpdf_cpp_pdf_overlay(SEXP infileSEXP, SEXP stampfileSEXP, SEXP outfileSEXP, SEXP passwordSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< char const* >::type infile(infileSEXP);
+    Rcpp::traits::input_parameter< char const* >::type stampfile(stampfileSEXP);
+    Rcpp::traits::input_parameter< char const* >::type outfile(outfileSEXP);
+    Rcpp::traits::input_parameter< char const* >::type password(passwordSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_overlay(infile, stampfile, outfile, password));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_qpdf_cpp_pdf_length", (DL_FUNC) &_qpdf_cpp_pdf_length, 2},
@@ -100,6 +114,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qpdf_cpp_pdf_combine", (DL_FUNC) &_qpdf_cpp_pdf_combine, 3},
     {"_qpdf_cpp_pdf_compress", (DL_FUNC) &_qpdf_cpp_pdf_compress, 4},
     {"_qpdf_cpp_pdf_rotate_pages", (DL_FUNC) &_qpdf_cpp_pdf_rotate_pages, 6},
+    {"_qpdf_cpp_pdf_overlay", (DL_FUNC) &_qpdf_cpp_pdf_overlay, 4},
     {NULL, NULL, 0}
 };
 

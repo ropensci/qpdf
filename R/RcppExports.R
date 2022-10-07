@@ -25,3 +25,7 @@ cpp_pdf_rotate_pages <- function(infile, outfile, which, angle, relative, passwo
     .Call('_qpdf_cpp_pdf_rotate_pages', PACKAGE = 'qpdf', infile, outfile, which, angle, relative, password)
 }
 
+cpp_pdf_overlay <- function(infile, stampfile, outfile, password) {
+    .Call('_qpdf_cpp_pdf_overlay', PACKAGE = 'qpdf', infile, stampfile, outfile, password)
+}
+

@@ -3,6 +3,7 @@
 export(pdf_combine)
 export(pdf_compress)
 export(pdf_length)
+export(pdf_overlay_stamp)
 export(pdf_rotate_pages)
 export(pdf_split)
 export(pdf_subset)

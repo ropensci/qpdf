@@ -86,6 +86,18 @@ pdf_compress <- function(input, output = NULL, linearize = FALSE, password = "")
 
 #' @export
 #' @rdname qpdf
+#' @param stamp pdf file of which the first page is overlayed into each page of input
+pdf_overlay_stamp <- function(input, stamp, output = NULL, password = ""){
+  input <- get_input(input)
+  stamp <- get_input(stamp)
+  if(!length(output))
+    output <- sub("\\.pdf$", "_output.pdf", input)
+  output <- normalizePath(output, mustWork = FALSE)
+  cpp_pdf_overlay(input, stamp, output, password)
+}
+
+#' @export
+#' @rdname qpdf
 #' @param pages a vector with page numbers to rotate
 #' @param angle rotation angle in degrees (positive = clockwise)
 #' @param relative if `TRUE`, pages are rotated relative to their current orientation. If `FALSE`, rotation is absolute (0 = portrait, 90 = landscape, rotated 90 degrees clockwise from portrait)

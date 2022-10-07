@@ -130,3 +130,40 @@ Rcpp::CharacterVector cpp_pdf_rotate_pages(char const* infile, char const* outfi
   return outfile;
 }
 
+// [[Rcpp::export]]
+Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile,
+                                      char const* outfile, char const* password){
+  QPDF inpdf;
+  QPDF stamppdf;
+  read_pdf_with_password(infile, password, &inpdf);
+  read_pdf_with_password(stampfile, password, &stamppdf);
+
+  // Code from: https://github.com/qpdf/qpdf/blob/release-qpdf-8.4.0/examples/pdf-overlay-page.cc
+  QPDFPageObjectHelper stamp_page_1 =  QPDFPageDocumentHelper(stamppdf).getAllPages().at(0);
+  QPDFObjectHandle foreign_fo = stamp_page_1.getFormXObjectForPage();
+  QPDFObjectHandle stamp_fo = inpdf.copyForeignObject(foreign_fo);
+  std::vector<QPDFPageObjectHelper> pages = QPDFPageDocumentHelper(inpdf).getAllPages();
+  for (std::vector<QPDFPageObjectHelper>::iterator iter = pages.begin(); iter != pages.end(); ++iter) {
+    QPDFPageObjectHelper& ph = *iter;
+    QPDFObjectHandle resources = ph.getAttribute("/Resources", true);
+    int min_suffix = 1;
+    std::string name = resources.getUniqueResourceName("/Fx", min_suffix);
+    std::string content =
+      ph.placeFormXObject(
+        stamp_fo, name, ph.getTrimBox().getArrayAsRectangle());
+    if (! content.empty()) {
+      resources.mergeResources(
+        QPDFObjectHandle::parse("<< /XObject << >> >>"));
+      resources.getKey("/XObject").replaceKey(name, stamp_fo);
+      ph.addPageContents(
+        QPDFObjectHandle::newStream(&inpdf, "q\n"), true);
+      ph.addPageContents(
+        QPDFObjectHandle::newStream(&inpdf, "\nQ\n" + content), false);
+    }
+  }
+  QPDFWriter w(inpdf, outfile);
+  w.setStaticID(true);        // for testing only
+  w.write();
+  return outfile;
+}
+

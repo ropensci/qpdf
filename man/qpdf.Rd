@@ -7,6 +7,7 @@
 \alias{pdf_subset}
 \alias{pdf_combine}
 \alias{pdf_compress}
+\alias{pdf_overlay_stamp}
 \alias{pdf_rotate_pages}
 \title{Split, Combine and Compress PDF Files}
 \usage{
@@ -19,6 +20,8 @@ pdf_subset(input, pages = 1, output = NULL, password = "")
 pdf_combine(input, output = NULL, password = "")
 
 pdf_compress(input, output = NULL, linearize = FALSE, password = "")
+
+pdf_overlay_stamp(input, stamp, output = NULL, password = "")
 
 pdf_rotate_pages(
   input,
@@ -39,6 +42,8 @@ pdf_rotate_pages(
 \item{pages}{a vector with page numbers to rotate}
 
 \item{linearize}{enable pdf linearization (streamable pdf)}
+
+\item{stamp}{pdf file of which the first page is overlayed into each page of input}
 
 \item{angle}{rotation angle in degrees (positive = clockwise)}
 
