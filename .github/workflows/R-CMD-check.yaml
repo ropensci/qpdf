@@ -20,7 +20,11 @@ jobs:
           - {os: windows-latest, r: 'release'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,   r: 'oldrel-4'}
+          - {os: ubuntu-22.04,   r: 'release', libqpdf: true}
+          - {os: ubuntu-20.04,   r: 'release', libqpdf: true}
+
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -37,6 +41,9 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - run: sudo apt-get install -y libqpdf-dev
+        if: ${{ matrix.config.libqpdf }}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
@@ -45,3 +52,5 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           args: 'c("--no-manual", "--as-cran", "--run-donttest")'
+        env:
+          EXTERNAL_QPDF: ${{ matrix.config.libqpdf }}
