@@ -12,6 +12,6 @@ fi
 PKGCONFIG_CFLAGS=`pkg-config --cflags --silence-errors libqpdf`
 PKGCONFIG_LIBS=`pkg-config --libs libqpdf`
 
-# Overwrite Makevars
-echo "PKG_CPPFLAGS=$PKGCONFIG_CFLAGS" > src/Makevars
+# Our bindings dont use shared pointers anyway:
+echo "PKG_CPPFLAGS=$PKGCONFIG_CFLAGS -DPOINTERHOLDER_TRANSITION=4" > src/Makevars
 echo "PKG_LIBS=$PKGCONFIG_LIBS" >> src/Makevars
