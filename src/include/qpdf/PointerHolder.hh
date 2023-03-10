@@ -156,6 +156,7 @@ class PointerHolder
     void init(Data* data)
 	{
 	    this->data = data;
+	    this->gone = false;
 	    {
 		++this->data->refcount;
 	    }
@@ -166,7 +167,7 @@ class PointerHolder
 	}
     void destroy()
 	{
-	    bool gone = false;
+    if (gone) return;
 	    {
 		if (--this->data->refcount == 0)
 		{
@@ -180,6 +181,7 @@ class PointerHolder
 	}
 
     Data* data;
+    bool gone;
 };
 
 #endif // POINTERHOLDER_HH
