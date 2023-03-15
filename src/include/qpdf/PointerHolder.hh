@@ -50,6 +50,13 @@
 // the underlying pointers provides a well-defined, if not
 // particularly meaningful, ordering.
 
+// Temporary fix for bug in gcc-12. Once CentOS-7 is EOL we can just
+// upgrade libqpdf and the problem disappears.
+#if __GNUC__ > 11
+/*IGNORE*/ #pragma GCC diagnostic push
+/*IGNORE*/ #pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif
+
 template <class T>
 class PointerHolder
 {
