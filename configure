@@ -2,7 +2,7 @@
 if [ -z "$EXTERNAL_QPDF" ]; then
   echo "Using bundled qpdf (recommended)"
   if pkg-config --exists libjpeg; then
-    sed -i.bak "s#-Iinclude#-Iinclude `pkg-config --cflags libjpeg`#" src/Makevars
+    sed -i.bak "s#-Ilibqpdf#-Ilibqpdf `pkg-config --cflags libjpeg`#" src/Makevars
     sed -i.bak "s#-ljpeg#`pkg-config --libs libjpeg`#" src/Makevars
   fi
   exit 0
