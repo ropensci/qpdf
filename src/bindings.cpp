@@ -42,7 +42,8 @@ Rcpp::CharacterVector cpp_pdf_split(char const* infile, std::string outprefix, c
   std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
   Rcpp::CharacterVector output(pages.size());
   for (int i = 0; i < pages.size(); i++) {
-    std::string outfile = outprefix + "_" + QUtil::int_to_string(i+1, pages.size()) + ".pdf";
+    int countlen = ceil(log10(pages.size() + 1));
+    std::string outfile = outprefix + "_" + QUtil::int_to_string(i+1, countlen) + ".pdf";
     output.at(i) = outfile;
     QPDF outpdf;
     outpdf.emptyPDF();
