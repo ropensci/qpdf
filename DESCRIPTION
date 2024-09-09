@@ -3,7 +3,7 @@ Type: Package
 Title: Split, Combine and Compress PDF Files
 Version: 1.3.3
 Authors@R: c(person("Jeroen", "Ooms", role = c("aut", "cre"), 
-    email = "jeroen@berkeley.edu", comment = c(ORCID = "0000-0002-4035-0289")),
+    email = "jeroenooms@gmail.com", comment = c(ORCID = "0000-0002-4035-0289")),
         person("Ben", "Raymond", role = "ctb"),
         person("Jay Berkenbilt", role = "cph", comment = "Author of libqpdf"))
 Description: Content-preserving transformations transformations of PDF files such 
