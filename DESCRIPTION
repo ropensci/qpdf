@@ -8,13 +8,12 @@ Authors@R: c(person("Jeroen", "Ooms", role = c("aut", "cre"),
         person("Jay Berkenbilt", role = "cph", comment = "Author of libqpdf"))
 Description: Content-preserving transformations transformations of PDF files such 
     as split, combine, and compress. This package interfaces directly to the 'qpdf' 
-    C++ API and does not require any command line utilities. Note that 'qpdf' does
-    not read actual content from PDF files: to extract text and data you need the
-    'pdftools' package.
+    C++ library <https://qpdf.sourceforge.io/> and does not require any command 
+    line utilities. Note that 'qpdf' does not read actual content from PDF files: 
+    to extract text and data you need the 'pdftools' package.
 License: Apache License 2.0
 URL: https://docs.ropensci.org/qpdf/
     https://ropensci.r-universe.dev/qpdf
-    https://qpdf.sourceforge.io/
 BugReports: https://github.com/ropensci/qpdf/issues
 Encoding: UTF-8
 Imports: Rcpp, askpass, curl
