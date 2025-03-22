@@ -3,6 +3,7 @@ PKG_CXXFLAGS = $(CXX_VISIBILITY)
 PKG_CFLAGS = $(C_VISIBILITY)
 
 PKG_LIBS = -Llibqpdf -lstatqpdf -ljpeg -lz
+STATLIB = libqpdf/libstatqpdf.a
 
 LIBQPDF = libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/BufferInputSource.o \
 		libqpdf/ClosedFileInputSource.o libqpdf/ContentNormalizer.o libqpdf/FileInputSource.o \
@@ -26,12 +27,12 @@ LIBQPDF = libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/Buffe
 		libqpdf/sha2.o libqpdf/sha2big.o
 
 #all: clean
-STATLIB = libqpdf/libstatqpdf.a
+all: $(SHLIB) cleanup
 
 $(SHLIB): $(STATLIB)
 
 $(STATLIB): $(LIBQPDF)
 	$(AR) rcs $(STATLIB) $(LIBQPDF)
 
-clean:
-	rm -f  $(SHLIB) $(STATLIB)
+cleanup: $(SHLIB)
+	@rm -f $(LIBQPDF) $(STATLIB)
