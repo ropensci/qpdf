@@ -50,4 +50,4 @@ jobs:
 
       - uses: r-lib/actions/check-r-package@v2
         env:
-          MAKE: ${{ runner.os == 'windows' && '' || 'make -j8' }}
+          MAKEFLAGS: -j8
