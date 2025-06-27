@@ -1,0 +1,29 @@
+/* options */
+#cmakedefine AVOID_WINDOWS_HANDLE 1
+#cmakedefine DEFAULT_CRYPTO "${DEFAULT_CRYPTO}"
+#cmakedefine USE_CRYPTO_GNUTLS 1
+#cmakedefine USE_CRYPTO_NATIVE 1
+#cmakedefine USE_CRYPTO_OPENSSL 1
+#cmakedefine USE_INSECURE_RANDOM 1
+#cmakedefine SKIP_OS_SECURE_RANDOM 1
+#cmakedefine ZOPFLI 1
+
+/* large file support -- may be needed for 32-bit systems */
+#cmakedefine _FILE_OFFSET_BITS ${_FILE_OFFSET_BITS}
+
+/* headers files */
+#cmakedefine HAVE_INTTYPES_H 1
+#cmakedefine HAVE_STDINT_H 1
+
+/* OS functions and symbols */
+#cmakedefine HAVE_EXTERN_LONG_TIMEZONE 1
+#cmakedefine HAVE_FSEEKO 1
+#cmakedefine HAVE_FSEEKO64 1
+#cmakedefine HAVE_LOCALTIME_R 1
+#cmakedefine HAVE_RANDOM 1
+#cmakedefine HAVE_TM_GMTOFF 1
+#cmakedefine HAVE_MALLOC_INFO 1
+#cmakedefine HAVE_OPEN_MEMSTREAM 1
+
+/* bytes in the size_t type */
+#cmakedefine SIZEOF_SIZE_T ${SIZEOF_SIZE_T}

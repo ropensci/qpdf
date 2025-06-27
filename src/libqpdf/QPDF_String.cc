@@ -1,184 +1,149 @@
-#include <qpdf/QPDF_String.hh>
+#include <qpdf/QPDFObject_private.hh>
 
+#include <qpdf/QPDFObjectHandle_private.hh>
 #include <qpdf/QUtil.hh>
-#include <qpdf/QTC.hh>
 
-// DO NOT USE ctype -- it is locale dependent for some things, and
-// it's not worth the risk of including it in case it may accidentally
-// be used.
-#include <string.h>
+// DO NOT USE ctype -- it is locale dependent for some things, and it's not worth the risk of
+// including it in case it may accidentally be used.
 
-// See above about ctype.
-static bool is_ascii_printable(unsigned char ch)
+static bool
+is_iso_latin1_printable(char ch)
 {
-    return ((ch >= 32) && (ch <= 126));
-}
-static bool is_iso_latin1_printable(unsigned char ch)
-{
-    return (((ch >= 32) && (ch <= 126)) || (ch >= 160));
+    return (((ch >= 32) && (ch <= 126)) || (static_cast<unsigned char>(ch) >= 160));
 }
 
-QPDF_String::QPDF_String(std::string const& val) :
-    val(val)
+std::shared_ptr<QPDFObject>
+QPDF_String::create_utf16(std::string const& utf8_val)
 {
+    std::string result;
+    if (!QUtil::utf8_to_pdf_doc(utf8_val, result, '?')) {
+        result = QUtil::utf8_to_utf16(utf8_val);
+    }
+    return QPDFObject::create<QPDF_String>(result);
 }
 
-QPDF_String::~QPDF_String()
+void
+QPDF_String::writeJSON(int json_version, JSON::Writer& p)
 {
+    auto candidate = getUTF8Val();
+    if (json_version == 1) {
+        p << "\"" << JSON::Writer::encode_string(candidate) << "\"";
+    } else {
+        // See if we can unambiguously represent as Unicode.
+        if (QUtil::is_utf16(this->val) || QUtil::is_explicit_utf8(this->val)) {
+            p << "\"u:" << JSON::Writer::encode_string(candidate) << "\"";
+            return;
+        } else if (!useHexString()) {
+            std::string test;
+            if (QUtil::utf8_to_pdf_doc(candidate, test, '?') && (test == this->val)) {
+                // This is a PDF-doc string that can be losslessly encoded as Unicode.
+                p << "\"u:" << JSON::Writer::encode_string(candidate) << "\"";
+                return;
+            }
+        }
+        p << "\"b:" << QUtil::hex_encode(val) << "\"";
+    }
 }
 
-QPDF_String*
-QPDF_String::new_utf16(std::string const& utf8_val)
+bool
+QPDF_String::useHexString() const
 {
-    return new QPDF_String(QUtil::utf8_to_utf16(utf8_val));
-}
-
-std::string
-QPDF_String::unparse()
-{
-    return unparse(false);
-}
-
-JSON
-QPDF_String::getJSON()
-{
-    return JSON::makeString(getUTF8Val());
-}
-
-QPDFObject::object_type_e
-QPDF_String::getTypeCode() const
-{
-    return QPDFObject::ot_string;
-}
-
-char const*
-QPDF_String::getTypeName() const
-{
-    return "string";
+    // Heuristic: use the hexadecimal representation of a string if there are any non-printable (in
+    // PDF Doc encoding) characters or if too large of a proportion of the string consists of
+    // non-ASCII characters.
+    unsigned int non_ascii = 0;
+    for (auto const ch: this->val) {
+        if (ch > 126) {
+            ++non_ascii;
+        } else if (ch >= 32) {
+            continue;
+        } else if (ch < 0 || ch >= 24) {
+            ++non_ascii;
+        } else if (!(ch == '\n' || ch == '\r' || ch == '\t' || ch == '\b' || ch == '\f')) {
+            return true;
+        }
+    }
+    return 5 * non_ascii > val.length();
 }
 
 std::string
 QPDF_String::unparse(bool force_binary)
 {
-    bool use_hexstring = force_binary;
-    if (! use_hexstring)
-    {
-	unsigned int nonprintable = 0;
-	int consecutive_printable = 0;
-	for (unsigned int i = 0; i < this->val.length(); ++i)
-	{
-	    char ch = this->val.at(i);
-	    // Note: do not use locale to determine printability.  The
-	    // PDF specification accepts arbitrary binary data.  Some
-	    // locales imply multibyte characters.  We'll consider
-	    // something printable if it is printable in 7-bit ASCII.
-	    // We'll code this manually rather than being rude and
-	    // setting locale.
-	    if ((ch == 0) || (! (is_ascii_printable(ch) ||
-				 strchr("\n\r\t\b\f", ch))))
-	    {
-		++nonprintable;
-		consecutive_printable = 0;
-	    }
-	    else
-	    {
-		if (++consecutive_printable > 5)
-		{
-		    // If there are more than 5 consecutive printable
-		    // characters, I want to see them as such.
-		    nonprintable = 0;
-		    break;
-		}
-	    }
-	}
-
-	// Use hex notation if more than 20% of the characters are not
-	// printable in plain ASCII.
-	if (5 * nonprintable > val.length())
-	{
-	    use_hexstring = true;
-	}
-    }
+    bool use_hexstring = force_binary || useHexString();
     std::string result;
-    if (use_hexstring)
-    {
-	result += "<" + QUtil::hex_encode(this->val) + ">";
-    }
-    else
-    {
-	result += "(";
-	for (unsigned int i = 0; i < this->val.length(); ++i)
-	{
-	    char ch = this->val.at(i);
-	    switch (ch)
-	    {
-	      case '\n':
-		result += "\\n";
-		break;
+    if (use_hexstring) {
+        static auto constexpr hexchars = "0123456789abcdef";
+        result.reserve(2 * this->val.length() + 2);
+        result += '<';
+        for (const char c: this->val) {
+            result += hexchars[static_cast<unsigned char>(c) >> 4];
+            result += hexchars[c & 0x0f];
+        }
+        result += '>';
+    } else {
+        result += "(";
+        for (unsigned int i = 0; i < this->val.length(); ++i) {
+            char ch = this->val.at(i);
+            switch (ch) {
+            case '\n':
+                result += "\\n";
+                break;
 
-	      case '\r':
-		result += "\\r";
-		break;
+            case '\r':
+                result += "\\r";
+                break;
 
-	      case '\t':
-		result += "\\t";
-		break;
+            case '\t':
+                result += "\\t";
+                break;
 
-	      case '\b':
-		result += "\\b";
-		break;
+            case '\b':
+                result += "\\b";
+                break;
 
-	      case '\f':
-		result += "\\f";
-		break;
+            case '\f':
+                result += "\\f";
+                break;
 
-	      case '(':
-		result += "\\(";
-		break;
+            case '(':
+                result += "\\(";
+                break;
 
-	      case ')':
-		result += "\\)";
-		break;
+            case ')':
+                result += "\\)";
+                break;
 
-	      case '\\':
-		result += "\\\\";
-		break;
+            case '\\':
+                result += "\\\\";
+                break;
 
-	      default:
-		if (is_iso_latin1_printable(ch))
-		{
-		    result += this->val.at(i);
-		}
-		else
-		{
-		    result += "\\" + QUtil::int_to_string_base(
-                        static_cast<int>(static_cast<unsigned char>(ch)),
-                        8, 3);
-		}
-		break;
-	    }
-	}
-	result += ")";
+            default:
+                if (is_iso_latin1_printable(ch)) {
+                    result += this->val.at(i);
+                } else {
+                    result += "\\" +
+                        QUtil::int_to_string_base(
+                                  static_cast<int>(static_cast<unsigned char>(ch)), 8, 3);
+                }
+                break;
+            }
+        }
+        result += ")";
     }
 
     return result;
 }
 
 std::string
-QPDF_String::getVal() const
-{
-    return this->val;
-}
-
-std::string
 QPDF_String::getUTF8Val() const
 {
-    if (QUtil::is_utf16(this->val))
-    {
+    if (QUtil::is_utf16(this->val)) {
         return QUtil::utf16_to_utf8(this->val);
-    }
-    else
-    {
+    } else if (QUtil::is_explicit_utf8(this->val)) {
+        // PDF 2.0 allows UTF-8 strings when explicitly prefixed with the three-byte representation
+        // of U+FEFF.
+        return this->val.substr(3);
+    } else {
         return QUtil::pdf_doc_to_utf8(this->val);
     }
 }

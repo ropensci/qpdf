@@ -1,14 +1,18 @@
 #include <qpdf/OffsetInputSource.hh>
 
-OffsetInputSource::OffsetInputSource(PointerHolder<InputSource> proxied,
-                                     qpdf_offset_t global_offset) :
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+
+OffsetInputSource::OffsetInputSource(
+    std::shared_ptr<InputSource> proxied, qpdf_offset_t global_offset) :
     proxied(proxied),
     global_offset(global_offset)
 {
-}
-
-OffsetInputSource::~OffsetInputSource()
-{
+    if (global_offset < 0) {
+        throw std::logic_error("OffsetInputSource constructed with negative offset");
+    }
+    this->max_safe_offset = std::numeric_limits<qpdf_offset_t>::max() - global_offset;
 }
 
 qpdf_offset_t
@@ -32,13 +36,20 @@ OffsetInputSource::tell()
 void
 OffsetInputSource::seek(qpdf_offset_t offset, int whence)
 {
-    if (whence == SEEK_SET)
-    {
+    if (whence == SEEK_SET) {
+        if (offset > this->max_safe_offset) {
+            std::ostringstream msg;
+            msg.imbue(std::locale::classic());
+            msg << "seeking to " << offset << " offset by " << global_offset
+                << " would cause an overflow of the offset type";
+            throw std::range_error(msg.str());
+        }
         this->proxied->seek(offset + global_offset, whence);
-    }
-    else
-    {
+    } else {
         this->proxied->seek(offset, whence);
+    }
+    if (tell() < 0) {
+        throw std::runtime_error("offset input source: seek before beginning of file");
     }
 }
 

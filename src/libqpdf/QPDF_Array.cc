@@ -1,129 +1,477 @@
-#include <qpdf/QPDF_Array.hh>
-#include <qpdf/QUtil.hh>
-#include <stdexcept>
+#include <qpdf/QPDFObjectHandle_private.hh>
 
-QPDF_Array::QPDF_Array(std::vector<QPDFObjectHandle> const& items) :
-    items(items)
-{
-}
+#include <qpdf/QTC.hh>
 
-QPDF_Array::~QPDF_Array()
-{
-}
+using namespace std::literals;
+using namespace qpdf;
 
-void
-QPDF_Array::releaseResolved()
+static const QPDFObjectHandle null_oh = QPDFObjectHandle::newNull();
+
+inline void
+Array::checkOwnership(QPDFObjectHandle const& item) const
 {
-    for (std::vector<QPDFObjectHandle>::iterator iter = this->items.begin();
-	 iter != this->items.end(); ++iter)
-    {
-	QPDFObjectHandle::ReleaseResolver::releaseResolved(*iter);
+    if (!item) {
+        throw std::logic_error("Attempting to add an uninitialized object to a QPDF_Array.");
+    }
+    if (qpdf() && item.qpdf() && qpdf() != item.qpdf()) {
+        throw std::logic_error(
+            "Attempting to add an object from a different QPDF. Use "
+            "QPDF::copyForeignObject to add objects from another file.");
     }
 }
 
-std::string
-QPDF_Array::unparse()
+QPDF_Array::QPDF_Array(std::vector<QPDFObjectHandle>&& v, bool sparse)
 {
-    std::string result = "[ ";
-    for (std::vector<QPDFObjectHandle>::iterator iter = this->items.begin();
-	 iter != this->items.end(); ++iter)
-    {
-	result += (*iter).unparse();
-	result += " ";
+    if (sparse) {
+        sp = std::make_unique<Sparse>();
+        for (auto& item: v) {
+            if (item.raw_type_code() != ::ot_null || item.indirect()) {
+                sp->elements[sp->size] = std::move(item);
+            }
+            ++sp->size;
+        }
+    } else {
+        elements = std::move(v);
     }
-    result += "]";
-    return result;
 }
 
-JSON
-QPDF_Array::getJSON()
+QPDF_Array*
+Array::array() const
 {
-    JSON j = JSON::makeArray();
-    for (std::vector<QPDFObjectHandle>::iterator iter = this->items.begin();
-	 iter != this->items.end(); ++iter)
-    {
-        j.addArrayElement((*iter).getJSON());
+    if (auto a = as<QPDF_Array>()) {
+        return a;
     }
-    return j;
+
+    throw std::runtime_error("Expected an array but found a non-array object");
+    return nullptr; // unreachable
 }
 
-QPDFObject::object_type_e
-QPDF_Array::getTypeCode() const
+Array::iterator
+Array::begin()
 {
-    return QPDFObject::ot_array;
+    if (auto a = as<QPDF_Array>()) {
+        if (!a->sp) {
+            return a->elements.begin();
+        }
+        if (!sp_elements) {
+            sp_elements = std::make_unique<std::vector<QPDFObjectHandle>>(getAsVector());
+        }
+        return sp_elements->begin();
+    }
+    return {};
 }
 
-char const*
-QPDF_Array::getTypeName() const
+Array::iterator
+Array::end()
 {
-    return "array";
+    if (auto a = as<QPDF_Array>()) {
+        if (!a->sp) {
+            return a->elements.end();
+        }
+        if (!sp_elements) {
+            sp_elements = std::make_unique<std::vector<QPDFObjectHandle>>(getAsVector());
+        }
+        return sp_elements->end();
+    }
+    return {};
 }
 
-void
-QPDF_Array::setDescription(QPDF* qpdf, std::string const& description)
+Array::const_iterator
+Array::cbegin()
 {
-    this->QPDFObject::setDescription(qpdf, description);
+    if (auto a = as<QPDF_Array>()) {
+        if (!a->sp) {
+            return a->elements.cbegin();
+        }
+        if (!sp_elements) {
+            sp_elements = std::make_unique<std::vector<QPDFObjectHandle>>(getAsVector());
+        }
+        return sp_elements->cbegin();
+    }
+    return {};
 }
 
-int
-QPDF_Array::getNItems() const
+Array::const_iterator
+Array::cend()
 {
-    return this->items.size();
+    if (auto a = as<QPDF_Array>()) {
+        if (!a->sp) {
+            return a->elements.cend();
+        }
+        if (!sp_elements) {
+            sp_elements = std::make_unique<std::vector<QPDFObjectHandle>>(getAsVector());
+        }
+        return sp_elements->cend();
+    }
+    return {};
+}
+
+Array::const_reverse_iterator
+Array::crbegin()
+{
+    if (auto a = as<QPDF_Array>()) {
+        if (!a->sp) {
+            return a->elements.crbegin();
+        }
+        if (!sp_elements) {
+            sp_elements = std::make_unique<std::vector<QPDFObjectHandle>>(getAsVector());
+        }
+        return sp_elements->crbegin();
+    }
+    return {};
+}
+
+Array::const_reverse_iterator
+Array::crend()
+{
+    if (auto a = as<QPDF_Array>()) {
+        if (!a->sp) {
+            return a->elements.crend();
+        }
+        if (!sp_elements) {
+            sp_elements = std::make_unique<std::vector<QPDFObjectHandle>>(getAsVector());
+        }
+        return sp_elements->crend();
+    }
+    return {};
 }
 
 QPDFObjectHandle
-QPDF_Array::getItem(int n) const
+Array::null() const
 {
-    if ((n < 0) || (n >= static_cast<int>(this->items.size())))
-    {
-	throw std::logic_error(
-	    "INTERNAL ERROR: bounds error accessing QPDF_Array element");
+    return null_oh;
+}
+
+int
+Array::size() const
+{
+    auto a = array();
+    return a->sp ? a->sp->size : int(a->elements.size());
+}
+
+std::pair<bool, QPDFObjectHandle>
+Array::at(int n) const
+{
+    auto a = array();
+    if (n < 0 || n >= size()) {
+        return {false, {}};
     }
-    return this->items.at(n);
-}
-
-std::vector<QPDFObjectHandle> const&
-QPDF_Array::getAsVector() const
-{
-    return this->items;
-}
-
-void
-QPDF_Array::setItem(int n, QPDFObjectHandle const& oh)
-{
-    // Call getItem for bounds checking
-    (void) getItem(n);
-    this->items.at(n) = oh;
-}
-
-void
-QPDF_Array::setFromVector(std::vector<QPDFObjectHandle> const& items)
-{
-    this->items = items;
-}
-
-void
-QPDF_Array::insertItem(int at, QPDFObjectHandle const& item)
-{
-    // As special case, also allow insert beyond the end
-    if ((at < 0) || (at > static_cast<int>(this->items.size())))
-    {
-	throw std::logic_error(
-	    "INTERNAL ERROR: bounds error accessing QPDF_Array element");
+    if (!a->sp) {
+        return {true, a->elements[size_t(n)]};
     }
-    this->items.insert(this->items.begin() + at, item);
+    auto const& iter = a->sp->elements.find(n);
+    return {true, iter == a->sp->elements.end() ? null() : iter->second};
+}
+
+std::vector<QPDFObjectHandle>
+Array::getAsVector() const
+{
+    auto a = array();
+    if (a->sp) {
+        std::vector<QPDFObjectHandle> v;
+        v.reserve(size_t(size()));
+        for (auto const& item: a->sp->elements) {
+            v.resize(size_t(item.first), null_oh);
+            v.emplace_back(item.second);
+        }
+        v.resize(size_t(size()), null_oh);
+        return v;
+    } else {
+        return a->elements;
+    }
+}
+
+bool
+Array::setAt(int at, QPDFObjectHandle const& oh)
+{
+    if (at < 0 || at >= size()) {
+        return false;
+    }
+    auto a = array();
+    checkOwnership(oh);
+    if (a->sp) {
+        a->sp->elements[at] = oh;
+    } else {
+        a->elements[size_t(at)] = oh;
+    }
+    return true;
 }
 
 void
-QPDF_Array::appendItem(QPDFObjectHandle const& item)
+Array::setFromVector(std::vector<QPDFObjectHandle> const& v)
 {
-    this->items.push_back(item);
+    auto a = array();
+    a->elements.resize(0);
+    a->elements.reserve(v.size());
+    for (auto const& item: v) {
+        checkOwnership(item);
+        a->elements.emplace_back(item);
+    }
+}
+
+bool
+Array::insert(int at, QPDFObjectHandle const& item)
+{
+    auto a = array();
+    int sz = size();
+    if (at < 0 || at > sz) {
+        // As special case, also allow insert beyond the end
+        return false;
+    } else if (at == sz) {
+        push_back(item);
+    } else {
+        checkOwnership(item);
+        if (a->sp) {
+            auto iter = a->sp->elements.crbegin();
+            while (iter != a->sp->elements.crend()) {
+                auto key = (iter++)->first;
+                if (key >= at) {
+                    auto nh = a->sp->elements.extract(key);
+                    ++nh.key();
+                    a->sp->elements.insert(std::move(nh));
+                } else {
+                    break;
+                }
+            }
+            a->sp->elements[at] = item.getObj();
+            ++a->sp->size;
+        } else {
+            a->elements.insert(a->elements.cbegin() + at, item.getObj());
+        }
+    }
+    return true;
 }
 
 void
-QPDF_Array::eraseItem(int at)
+Array::push_back(QPDFObjectHandle const& item)
 {
-    // Call getItem for bounds checking
-    (void) getItem(at);
-    this->items.erase(this->items.begin() + at);
+    auto a = array();
+    checkOwnership(item);
+    if (a->sp) {
+        a->sp->elements[(a->sp->size)++] = item;
+    } else {
+        a->elements.emplace_back(item);
+    }
+}
+
+bool
+Array::erase(int at)
+{
+    auto a = array();
+    if (at < 0 || at >= size()) {
+        return false;
+    }
+    if (a->sp) {
+        auto end = a->sp->elements.end();
+        if (auto iter = a->sp->elements.lower_bound(at); iter != end) {
+            if (iter->first == at) {
+                iter++;
+                a->sp->elements.erase(at);
+            }
+
+            while (iter != end) {
+                auto nh = a->sp->elements.extract(iter++);
+                --nh.key();
+                a->sp->elements.insert(std::move(nh));
+            }
+        }
+        --(a->sp->size);
+    } else {
+        a->elements.erase(a->elements.cbegin() + at);
+    }
+    return true;
+}
+
+int
+QPDFObjectHandle::getArrayNItems() const
+{
+    if (auto array = as_array(strict)) {
+        return array.size();
+    }
+    typeWarning("array", "treating as empty");
+    QTC::TC("qpdf", "QPDFObjectHandle array treating as empty");
+    return 0;
+}
+
+QPDFObjectHandle
+QPDFObjectHandle::getArrayItem(int n) const
+{
+    if (auto array = as_array(strict)) {
+        if (auto const [success, oh] = array.at(n); success) {
+            return oh;
+        } else {
+            objectWarning("returning null for out of bounds array access");
+            QTC::TC("qpdf", "QPDFObjectHandle array bounds");
+        }
+    } else {
+        typeWarning("array", "returning null");
+        QTC::TC("qpdf", "QPDFObjectHandle array null for non-array");
+    }
+    static auto constexpr msg = " -> null returned from invalid array access"sv;
+    return QPDF_Null::create(obj, msg, "");
+}
+
+bool
+QPDFObjectHandle::isRectangle() const
+{
+    if (auto array = as_array(strict)) {
+        for (int i = 0; i < 4; ++i) {
+            if (auto item = array.at(i).second; !item.isNumber()) {
+                return false;
+            }
+        }
+        return array.size() == 4;
+    }
+    return false;
+}
+
+bool
+QPDFObjectHandle::isMatrix() const
+{
+    if (auto array = as_array(strict)) {
+        for (int i = 0; i < 6; ++i) {
+            if (auto item = array.at(i).second; !item.isNumber()) {
+                return false;
+            }
+        }
+        return array.size() == 6;
+    }
+    return false;
+}
+
+QPDFObjectHandle::Rectangle
+QPDFObjectHandle::getArrayAsRectangle() const
+{
+    if (auto array = as_array(strict)) {
+        if (array.size() != 4) {
+            return {};
+        }
+        double items[4];
+        for (int i = 0; i < 4; ++i) {
+            if (auto item = array.at(i).second; !item.getValueAsNumber(items[i])) {
+                return {};
+            }
+        }
+        return {
+            std::min(items[0], items[2]),
+            std::min(items[1], items[3]),
+            std::max(items[0], items[2]),
+            std::max(items[1], items[3])};
+    }
+    return {};
+}
+
+QPDFObjectHandle::Matrix
+QPDFObjectHandle::getArrayAsMatrix() const
+{
+    if (auto array = as_array(strict)) {
+        if (array.size() != 6) {
+            return {};
+        }
+        double items[6];
+        for (int i = 0; i < 6; ++i) {
+            if (auto item = array.at(i).second; !item.getValueAsNumber(items[i])) {
+                return {};
+            }
+        }
+        return {items[0], items[1], items[2], items[3], items[4], items[5]};
+    }
+    return {};
+}
+
+std::vector<QPDFObjectHandle>
+QPDFObjectHandle::getArrayAsVector() const
+{
+    if (auto array = as_array(strict)) {
+        return array.getAsVector();
+    }
+    typeWarning("array", "treating as empty");
+    QTC::TC("qpdf", "QPDFObjectHandle array treating as empty vector");
+    return {};
+}
+
+void
+QPDFObjectHandle::setArrayItem(int n, QPDFObjectHandle const& item)
+{
+    if (auto array = as_array(strict)) {
+        if (!array.setAt(n, item)) {
+            objectWarning("ignoring attempt to set out of bounds array item");
+            QTC::TC("qpdf", "QPDFObjectHandle set array bounds");
+        }
+    } else {
+        typeWarning("array", "ignoring attempt to set item");
+        QTC::TC("qpdf", "QPDFObjectHandle array ignoring set item");
+    }
+}
+void
+QPDFObjectHandle::setArrayFromVector(std::vector<QPDFObjectHandle> const& items)
+{
+    if (auto array = as_array(strict)) {
+        array.setFromVector(items);
+    } else {
+        typeWarning("array", "ignoring attempt to replace items");
+        QTC::TC("qpdf", "QPDFObjectHandle array ignoring replace items");
+    }
+}
+
+void
+QPDFObjectHandle::insertItem(int at, QPDFObjectHandle const& item)
+{
+    if (auto array = as_array(strict)) {
+        if (!array.insert(at, item)) {
+            objectWarning("ignoring attempt to insert out of bounds array item");
+            QTC::TC("qpdf", "QPDFObjectHandle insert array bounds");
+        }
+    } else {
+        typeWarning("array", "ignoring attempt to insert item");
+        QTC::TC("qpdf", "QPDFObjectHandle array ignoring insert item");
+    }
+}
+
+QPDFObjectHandle
+QPDFObjectHandle::insertItemAndGetNew(int at, QPDFObjectHandle const& item)
+{
+    insertItem(at, item);
+    return item;
+}
+
+void
+QPDFObjectHandle::appendItem(QPDFObjectHandle const& item)
+{
+    if (auto array = as_array(strict)) {
+        array.push_back(item);
+    } else {
+        typeWarning("array", "ignoring attempt to append item");
+        QTC::TC("qpdf", "QPDFObjectHandle array ignoring append item");
+    }
+}
+
+QPDFObjectHandle
+QPDFObjectHandle::appendItemAndGetNew(QPDFObjectHandle const& item)
+{
+    appendItem(item);
+    return item;
+}
+
+void
+QPDFObjectHandle::eraseItem(int at)
+{
+    if (auto array = as_array(strict)) {
+        if (!array.erase(at)) {
+            objectWarning("ignoring attempt to erase out of bounds array item");
+            QTC::TC("qpdf", "QPDFObjectHandle erase array bounds");
+        }
+    } else {
+        typeWarning("array", "ignoring attempt to erase item");
+        QTC::TC("qpdf", "QPDFObjectHandle array ignoring erase item");
+    }
+}
+
+QPDFObjectHandle
+QPDFObjectHandle::eraseItemAndGetOld(int at)
+{
+    auto array = as_array(strict);
+    auto result = (array && at < array.size() && at >= 0) ? array.at(at).second : newNull();
+    eraseItem(at);
+    return result;
 }

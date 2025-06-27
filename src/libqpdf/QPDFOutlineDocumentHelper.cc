@@ -1,80 +1,63 @@
 #include <qpdf/QPDFOutlineDocumentHelper.hh>
+
 #include <qpdf/QTC.hh>
-
-QPDFOutlineDocumentHelper::Members::~Members()
-{
-}
-
-QPDFOutlineDocumentHelper::Members::Members()
-{
-}
 
 QPDFOutlineDocumentHelper::QPDFOutlineDocumentHelper(QPDF& qpdf) :
     QPDFDocumentHelper(qpdf),
     m(new Members())
 {
     QPDFObjectHandle root = qpdf.getRoot();
-    if (! root.hasKey("/Outlines"))
-    {
+    if (!root.hasKey("/Outlines")) {
         return;
     }
     QPDFObjectHandle outlines = root.getKey("/Outlines");
-    if (! (outlines.isDictionary() && outlines.hasKey("/First")))
-    {
+    if (!(outlines.isDictionary() && outlines.hasKey("/First"))) {
         return;
     }
     QPDFObjectHandle cur = outlines.getKey("/First");
-    while (! cur.isNull())
-    {
-        this->m->outlines.push_back(
-            QPDFOutlineObjectHelper::Accessor::create(cur, *this, 1));
+    QPDFObjGen::set seen;
+    while (!cur.isNull() && seen.add(cur)) {
+        m->outlines.push_back(QPDFOutlineObjectHelper::Accessor::create(cur, *this, 1));
         cur = cur.getKey("/Next");
     }
-}
-
-QPDFOutlineDocumentHelper::~QPDFOutlineDocumentHelper()
-{
 }
 
 bool
 QPDFOutlineDocumentHelper::hasOutlines()
 {
-    return ! this->m->outlines.empty();
+    return !m->outlines.empty();
 }
 
-std::list<QPDFOutlineObjectHelper>
+std::vector<QPDFOutlineObjectHelper>
 QPDFOutlineDocumentHelper::getTopLevelOutlines()
 {
-    return this->m->outlines;
+    return m->outlines;
 }
 
 void
 QPDFOutlineDocumentHelper::initializeByPage()
 {
     std::list<QPDFOutlineObjectHelper> queue;
-    queue.insert(queue.end(), this->m->outlines.begin(), this->m->outlines.end());
+    queue.insert(queue.end(), m->outlines.begin(), m->outlines.end());
 
-    while (! queue.empty())
-    {
+    while (!queue.empty()) {
         QPDFOutlineObjectHelper oh = queue.front();
         queue.pop_front();
-        this->m->by_page[oh.getDestPage().getObjGen()].push_back(oh);
-        std::list<QPDFOutlineObjectHelper> kids = oh.getKids();
+        m->by_page[oh.getDestPage().getObjGen()].push_back(oh);
+        std::vector<QPDFOutlineObjectHelper> kids = oh.getKids();
         queue.insert(queue.end(), kids.begin(), kids.end());
     }
 }
 
-std::list<QPDFOutlineObjectHelper>
-QPDFOutlineDocumentHelper::getOutlinesForPage(QPDFObjGen const& og)
+std::vector<QPDFOutlineObjectHelper>
+QPDFOutlineDocumentHelper::getOutlinesForPage(QPDFObjGen og)
 {
-    if (this->m->by_page.empty())
-    {
+    if (m->by_page.empty()) {
         initializeByPage();
     }
-    std::list<QPDFOutlineObjectHelper> result;
-    if (this->m->by_page.count(og))
-    {
-        result = this->m->by_page[og];
+    std::vector<QPDFOutlineObjectHelper> result;
+    if (m->by_page.count(og)) {
+        result = m->by_page[og];
     }
     return result;
 }
@@ -83,55 +66,31 @@ QPDFObjectHandle
 QPDFOutlineDocumentHelper::resolveNamedDest(QPDFObjectHandle name)
 {
     QPDFObjectHandle result;
-    if (name.isName())
-    {
-        if (! this->m->dest_dict.isInitialized())
-        {
-            this->m->dest_dict = this->qpdf.getRoot().getKey("/Dests");
+    if (name.isName()) {
+        if (!m->dest_dict) {
+            m->dest_dict = qpdf.getRoot().getKey("/Dests");
         }
-        if (this->m->dest_dict.isDictionary())
-        {
-            QTC::TC("qpdf", "QPDFOutlineDocumentHelper name named dest");
-            result = this->m->dest_dict.getKey(name.getName());
-        }
-    }
-    else if (name.isString())
-    {
-        if (0 == this->m->names_dest.getPointer())
-        {
-            QPDFObjectHandle names = this->qpdf.getRoot().getKey("/Names");
-            if (names.isDictionary())
-            {
-                QPDFObjectHandle dests = names.getKey("/Dests");
-                if (dests.isDictionary())
-                {
-                    this->m->names_dest =
-                        new QPDFNameTreeObjectHelper(dests);
-                }
+        QTC::TC("qpdf", "QPDFOutlineDocumentHelper name named dest");
+        result = m->dest_dict.getKeyIfDict(name.getName());
+    } else if (name.isString()) {
+        if (!m->names_dest) {
+            auto dests = qpdf.getRoot().getKey("/Names").getKeyIfDict("/Dests");
+            if (dests.isDictionary()) {
+                m->names_dest = std::make_shared<QPDFNameTreeObjectHelper>(dests, qpdf);
             }
         }
-        if (this->m->names_dest.getPointer())
-        {
-            if (this->m->names_dest->findObject(name.getUTF8Value(), result))
-            {
+        if (m->names_dest) {
+            if (m->names_dest->findObject(name.getUTF8Value(), result)) {
                 QTC::TC("qpdf", "QPDFOutlineDocumentHelper string named dest");
             }
         }
     }
-    if (! result.isInitialized())
-    {
-        result = QPDFObjectHandle::newNull();
+    if (!result) {
+        return QPDFObjectHandle::newNull();
+    }
+    if (result.isDictionary()) {
+        QTC::TC("qpdf", "QPDFOutlineDocumentHelper named dest dictionary");
+        return result.getKey("/D");
     }
     return result;
-}
-
-bool
-QPDFOutlineDocumentHelper::checkSeen(QPDFObjGen const& og)
-{
-    if (this->m->seen.count(og) > 0)
-    {
-        return true;
-    }
-    this->m->seen.insert(og);
-    return false;
 }

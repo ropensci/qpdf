@@ -1,4 +1,5 @@
 #include <qpdf/QPDFMatrix.hh>
+
 #include <qpdf/QUtil.hh>
 #include <algorithm>
 
@@ -12,8 +13,7 @@ QPDFMatrix::QPDFMatrix() :
 {
 }
 
-QPDFMatrix::QPDFMatrix(double a, double b, double c,
-                       double d, double e, double f) :
+QPDFMatrix::QPDFMatrix(double a, double b, double c, double d, double e, double f) :
     a(a),
     b(b),
     c(c),
@@ -33,10 +33,10 @@ QPDFMatrix::QPDFMatrix(QPDFObjectHandle::Matrix const& m) :
 {
 }
 
-static double fix_rounding(double d)
+static double
+fix_rounding(double d)
 {
-    if ((d > -0.00001) && (d < 0.00001))
-    {
+    if ((d > -0.00001) && (d < 0.00001)) {
         d = 0.0;
     }
     return d;
@@ -45,18 +45,19 @@ static double fix_rounding(double d)
 std::string
 QPDFMatrix::unparse() const
 {
-    return (QUtil::double_to_string(fix_rounding(a), 5) + " " +
-            QUtil::double_to_string(fix_rounding(b), 5) + " " +
-            QUtil::double_to_string(fix_rounding(c), 5) + " " +
-            QUtil::double_to_string(fix_rounding(d), 5) + " " +
-            QUtil::double_to_string(fix_rounding(e), 5) + " " +
-            QUtil::double_to_string(fix_rounding(f), 5));
+    return (
+        QUtil::double_to_string(fix_rounding(a), 5) + " " +
+        QUtil::double_to_string(fix_rounding(b), 5) + " " +
+        QUtil::double_to_string(fix_rounding(c), 5) + " " +
+        QUtil::double_to_string(fix_rounding(d), 5) + " " +
+        QUtil::double_to_string(fix_rounding(e), 5) + " " +
+        QUtil::double_to_string(fix_rounding(f), 5));
 }
 
 QPDFObjectHandle::Matrix
 QPDFMatrix::getAsMatrix() const
 {
-    return QPDFObjectHandle::Matrix(a, b, c, d, e, f);
+    return {a, b, c, d, e, f};
 }
 
 void
@@ -68,12 +69,12 @@ QPDFMatrix::concat(QPDFMatrix const& other)
     double dp = (this->b * other.c) + (this->d * other.d);
     double ep = (this->a * other.e) + (this->c * other.f) + this->e;
     double fp = (this->b * other.e) + (this->d * other.f) + this->f;
-    this-> a = ap;
-    this-> b = bp;
-    this-> c = cp;
-    this-> d = dp;
-    this-> e = ep;
-    this-> f = fp;
+    this->a = ap;
+    this->b = bp;
+    this->c = cp;
+    this->d = dp;
+    this->e = ep;
+    this->f = fp;
 }
 
 void
@@ -91,45 +92,55 @@ QPDFMatrix::translate(double tx, double ty)
 void
 QPDFMatrix::rotatex90(int angle)
 {
-    switch (angle)
-    {
-      case 90:
+    switch (angle) {
+    case 90:
         concat(QPDFMatrix(0, 1, -1, 0, 0, 0));
         break;
-      case 180:
+    case 180:
         concat(QPDFMatrix(-1, 0, 0, -1, 0, 0));
         break;
-      case 270:
+    case 270:
         concat(QPDFMatrix(0, -1, 1, 0, 0, 0));
         break;
-      default:
+    default:
         // ignore
         break;
     }
 }
 
 void
-QPDFMatrix::transform(double x, double y, double& xp, double& yp)
+QPDFMatrix::transform(double x, double y, double& xp, double& yp) const
 {
     xp = (this->a * x) + (this->c * y) + this->e;
     yp = (this->b * x) + (this->d * y) + this->f;
 }
 
 QPDFObjectHandle::Rectangle
-QPDFMatrix::transformRectangle(QPDFObjectHandle::Rectangle r)
+QPDFMatrix::transformRectangle(QPDFObjectHandle::Rectangle r) const
 {
-    // Transform a rectangle by creating a new rectangle the tightly
-    // bounds the polygon resulting from transforming the four
-    // corners.
     std::vector<double> tx(4);
     std::vector<double> ty(4);
     transform(r.llx, r.lly, tx.at(0), ty.at(0));
     transform(r.llx, r.ury, tx.at(1), ty.at(1));
     transform(r.urx, r.lly, tx.at(2), ty.at(2));
     transform(r.urx, r.ury, tx.at(3), ty.at(3));
-    return QPDFObjectHandle::Rectangle(
+    return {
         *std::min_element(tx.begin(), tx.end()),
         *std::min_element(ty.begin(), ty.end()),
         *std::max_element(tx.begin(), tx.end()),
-        *std::max_element(ty.begin(), ty.end()));
+        *std::max_element(ty.begin(), ty.end())};
+}
+
+bool
+QPDFMatrix::operator==(QPDFMatrix const& rhs) const
+{
+    return (
+        (this->a == rhs.a) && (this->b == rhs.b) && (this->c == rhs.c) && (this->d == rhs.d) &&
+        (this->e == rhs.e) && (this->f == rhs.f));
+}
+
+bool
+QPDFMatrix::operator!=(QPDFMatrix const& rhs) const
+{
+    return !operator==(rhs);
 }

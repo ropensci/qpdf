@@ -3,24 +3,21 @@
 
 #include <qpdf/Pipeline.hh>
 
-class Pl_ASCII85Decoder: public Pipeline
+class Pl_ASCII85Decoder final: public Pipeline
 {
   public:
-    QPDF_DLL
     Pl_ASCII85Decoder(char const* identifier, Pipeline* next);
-    QPDF_DLL
-    virtual ~Pl_ASCII85Decoder();
-    QPDF_DLL
-    virtual void write(unsigned char* buf, size_t len);
-    QPDF_DLL
-    virtual void finish();
+    ~Pl_ASCII85Decoder() final = default;
+    void write(unsigned char const* buf, size_t len) final;
+    void finish() final;
 
   private:
     void flush();
 
-    char inbuf[5];
-    size_t pos;
-    size_t eod;
+    unsigned char inbuf[5]{117, 117, 117, 117, 117};
+    size_t pos{0};
+    size_t eod{0};
+    bool error{false};
 };
 
 #endif // PL_ASCII85DECODER_HH
