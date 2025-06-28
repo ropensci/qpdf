@@ -3,24 +3,20 @@
 
 #include <qpdf/Pipeline.hh>
 
-class Pl_ASCIIHexDecoder: public Pipeline
+class Pl_ASCIIHexDecoder final: public Pipeline
 {
   public:
-    QPDF_DLL
     Pl_ASCIIHexDecoder(char const* identifier, Pipeline* next);
-    QPDF_DLL
-    virtual ~Pl_ASCIIHexDecoder();
-    QPDF_DLL
-    virtual void write(unsigned char* buf, size_t len);
-    QPDF_DLL
-    virtual void finish();
+    ~Pl_ASCIIHexDecoder() final = default;
+    void write(unsigned char const* buf, size_t len) final;
+    void finish() final;
 
   private:
     void flush();
 
-    char inbuf[3];
-    size_t pos;
-    bool eod;
+    char inbuf[3]{'0', '0', '\0'};
+    size_t pos{0};
+    bool eod{false};
 };
 
 #endif // PL_ASCIIHEXDECODER_HH

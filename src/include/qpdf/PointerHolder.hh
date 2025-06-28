@@ -1,4 +1,5 @@
-// Copyright (c) 2005-2019 Jay Berkenbilt
+// Copyright (c) 2005-2021 Jay Berkenbilt
+// Copyright (c) 2022-2025 Jay Berkenbilt and Manfred Holger
 //
 // This file is part of qpdf.
 //
@@ -22,171 +23,223 @@
 #ifndef POINTERHOLDER_HH
 #define POINTERHOLDER_HH
 
-// This class is basically boost::shared_pointer but predates that by
-// several years.
+#define POINTERHOLDER_IS_SHARED_POINTER
 
-// This class expects to be initialized with a dynamically allocated
-// object pointer.  It keeps a reference count and deletes this once
-// the reference count goes to zero.  PointerHolder objects are
-// explicitly safe for use in STL containers.
+#ifndef POINTERHOLDER_TRANSITION
+// 0 = no deprecation warnings, backward-compatible API
+// 1 = make PointerHolder<T>(T*) explicit
+// 2 = warn for use of getPointer() and getRefcount()
+// 3 = warn for all use of PointerHolder
+// 4 = don't define PointerHolder at all
+# define POINTERHOLDER_TRANSITION 4
+#endif // !defined(POINTERHOLDER_TRANSITION)
 
-// It is very important that a client who pulls the pointer out of
-// this holder does not let the holder go out of scope until it is
-// finished with the pointer.  It is also important that exactly one
-// instance of this object ever gets initialized with a given pointer.
-// Otherwise, the pointer will be deleted twice, and before that, some
-// objects will be left with a pointer to a deleted object.  In other
-// words, the only legitimate way for two PointerHolder objects to
-// contain the same pointer is for one to be a copy of the other.
-// Copy and assignment semantics are well-defined and essentially
-// allow you to use PointerHolder as a means to get pass-by-reference
-// semantics in a pass-by-value environment without having to worry
-// about memory management details.
+#if POINTERHOLDER_TRANSITION < 4
 
-// Comparison (== and <) are defined and operate on the internally
-// stored pointers, not on the data.  This makes it possible to store
-// PointerHolder objects in sorted lists or to find them in STL
-// containers just as one would be able to store pointers.  Comparing
-// the underlying pointers provides a well-defined, if not
-// particularly meaningful, ordering.
+// *** WHAT IS HAPPENING ***
 
-// Temporary fix for bug in gcc-12. Once CentOS-7 is EOL we can just
-// upgrade libqpdf and the problem disappears.
-#if __GNUC__ == 12
-/*IGNORE*/ #pragma GCC diagnostic push
-/*IGNORE*/ #pragma GCC diagnostic ignored "-Wuse-after-free"
-#endif
+// In qpdf 11, PointerHolder was replaced with std::shared_ptr
+// wherever it appeared in the qpdf API. The PointerHolder object is
+// now derived from std::shared_ptr to provide a backward-compatible
+// interface and is mutually assignable with std::shared_ptr. Code
+// that uses containers of PointerHolder will require adjustment.
+
+// In qpdf 11, a backward-compatible PointerHolder was provided with a
+// warning if POINTERHOLDER_TRANSITION was not defined. Starting in
+// qpdf 12, PointerHolder is absent if POINTERHOLDER_TRANSITION is not
+// defined. In a future version of qpdf, PointerHolder will be removed
+// outright if it becomes inconvenient to keep it around.
+
+// *** HOW TO TRANSITION ***
+
+// The symbol POINTERHOLDER_TRANSITION can be defined to help you
+// transition your code away from PointerHolder. You can define it
+// before including any qpdf header files or including its definition
+// in your build configuration. If not defined, it automatically gets
+// defined to 4, which excludes PointerHolder entirely.
+
+// If you want to work gradually to transition your code away from
+// PointerHolder, you can define POINTERHOLDER_TRANSITION and fix the
+// code so it compiles without warnings and works correctly. If you
+// want to be able to continue to support old qpdf versions at the
+// same time, you can write code like this:
+
+// #ifndef POINTERHOLDER_IS_SHARED_POINTER
+//  ... use PointerHolder as before 10.6
+// #else
+//  ... use PointerHolder or shared_ptr as needed
+// #endif
+
+// Each level of POINTERHOLDER_TRANSITION exposes differences between
+// PointerHolder and std::shared_ptr. The easiest way to transition is
+// to increase POINTERHOLDER_TRANSITION in steps of 1 so that you can
+// test and handle changes incrementally.
+
+// POINTERHOLDER_TRANSITION = 1
+//
+// PointerHolder<T> has an implicit constructor that takes a T*, so
+// you can replace a PointerHolder<T>'s pointer by directly assigning
+// a T* to it or pass a T* to a function that expects a
+// PointerHolder<T>. std::shared_ptr does not have this (risky)
+// behavior. When POINTERHOLDER_TRANSITION = 1, PointerHolder<T>'s T*
+// constructor is declared explicit. For compatibility with
+// std::shared_ptr, you can still assign nullptr to a PointerHolder.
+// Constructing all your PointerHolder<T> instances explicitly is
+// backward compatible, so you can make this change without
+// conditional compilation and still use the changes with older qpdf
+// versions.
+//
+// Also defined is a make_pointer_holder method that acts like
+// std::make_shared. You can use this as well, but it is not
+// compatible with qpdf prior to 10.6 and not necessary with qpdf
+// newer than 10.6.3. Like std::make_shared<T>, make_pointer_holder<T>
+// can only be used when the constructor implied by its arguments is
+// public. If you previously used this, you can replace it width
+// std::make_shared now.
+
+// POINTERHOLDER_TRANSITION = 2
+//
+// std::shared_ptr has get() and use_count(). PointerHolder has
+// getPointer() and getRefcount(). In 10.6.0, get() and use_count()
+// were added as well. When POINTERHOLDER_TRANSITION = 2, getPointer()
+// and getRefcount() are deprecated. Fix deprecation warnings by
+// replacing with get() and use_count(). This breaks compatibility
+// with qpdf older than 10.6. Search for CONST BEHAVIOR for an
+// additional note.
+//
+// Once your code is clean at POINTERHOLDER_TRANSITION = 2, the only
+// remaining issues that prevent simple replacement of PointerHolder
+// with std::shared_ptr are shared arrays and containers, and neither
+// of these are used in the qpdf API.
+
+// POINTERHOLDER_TRANSITION = 3
+//
+// Warn for all use of PointerHolder<T>. This helps you remove all use
+// of PointerHolder from your code and use std::shared_ptr instead.
+// You will also have to transition any containers of PointerHolder in
+// your code.
+
+// POINTERHOLDER_TRANSITION = 4
+//
+// Suppress definition of the PointerHolder<T> type entirely. This is
+// the default behavior starting with qpdf 12.
+
+// CONST BEHAVIOR
+
+// PointerHolder<T> has had a long-standing bug in its const behavior.
+// const PointerHolder<T>'s getPointer() method returns a T const*.
+// This is incorrect and is not how regular pointers or standard
+// library smart pointers behave. Making a PointerHolder<T> const
+// should prevent reassignment of its pointer but not affect the thing
+// it points to. For that, use PointerHolder<T const>. The new get()
+// method behaves correctly in this respect and is therefore slightly
+// different from getPointer(). This shouldn't break any correctly
+// written code. If you are relying on the incorrect behavior, use
+// PointerHolder<T const> instead.
+
+# include <cstddef>
+# include <memory>
 
 template <class T>
-class PointerHolder
+class PointerHolder: public std::shared_ptr<T>
 {
-  private:
-    class Data
-    {
-      public:
-	Data(T* pointer, bool array) :
-	    pointer(pointer),
-	    array(array),
-	    refcount(0)
-	    {
-	    }
-	~Data()
-	    {
-		if (array)
-		{
-		    delete [] this->pointer;
-		}
-		else
-		{
-		    delete this->pointer;
-		}
-	    }
-	T* pointer;
-	bool array;
-	int refcount;
-      private:
-	Data(Data const&);
-	Data& operator=(Data const&);
-    };
-
   public:
-    PointerHolder(T* pointer = 0)
-	{
-	    this->init(new Data(pointer, false));
-	}
-    // Special constructor indicating to free memory with delete []
-    // instead of delete
-    PointerHolder(bool, T* pointer)
-	{
-	    this->init(new Data(pointer, true));
-	}
-    PointerHolder(PointerHolder const& rhs)
-	{
-	    this->copy(rhs);
-	}
-    PointerHolder& operator=(PointerHolder const& rhs)
-	{
-	    if (this != &rhs)
-	    {
-		this->destroy();
-		this->copy(rhs);
-	    }
-	    return *this;
-	}
-    ~PointerHolder()
-	{
-	    this->destroy();
-	}
-    bool operator==(PointerHolder const& rhs) const
+# if POINTERHOLDER_TRANSITION >= 3
+    [[deprecated("use std::shared_ptr<T> instead")]]
+# endif // POINTERHOLDER_TRANSITION >= 3
+    PointerHolder(std::shared_ptr<T> other) :
+        std::shared_ptr<T>(other)
     {
-	return this->data->pointer == rhs.data->pointer;
     }
-    bool operator<(PointerHolder const& rhs) const
+# if POINTERHOLDER_TRANSITION >= 3
+    [[deprecated("use std::shared_ptr<T> instead")]]
+#  if POINTERHOLDER_TRANSITION >= 1
+    explicit
+#  endif // POINTERHOLDER_TRANSITION >= 1
+# endif  // POINTERHOLDER_TRANSITION >= 3
+        PointerHolder(T* pointer = 0) :
+        std::shared_ptr<T>(pointer)
     {
-	return this->data->pointer < rhs.data->pointer;
+    }
+    // Create a shared pointer to an array
+# if POINTERHOLDER_TRANSITION >= 3
+    [[deprecated("use std::shared_ptr<T> instead")]]
+# endif // POINTERHOLDER_TRANSITION >= 3
+    PointerHolder(bool, T* pointer) :
+        std::shared_ptr<T>(pointer, std::default_delete<T[]>())
+    {
     }
 
-    // NOTE: The pointer returned by getPointer turns into a pumpkin
-    // when the last PointerHolder that contains it disappears.
-    T* getPointer()
-	{
-	    return this->data->pointer;
-	}
-    T const* getPointer() const
-	{
-	    return this->data->pointer;
-	}
-    int getRefcount() const
-	{
-	    return this->data->refcount;
-	}
+    virtual ~PointerHolder() = default;
 
-    T const& operator*() const
+# if POINTERHOLDER_TRANSITION >= 2
+    [[deprecated("use PointerHolder<T>::get() instead of getPointer()")]]
+# endif // POINTERHOLDER_TRANSITION >= 2
+    T*
+    getPointer()
     {
-        return *this->data->pointer;
+        return this->get();
     }
-    T& operator*()
+# if POINTERHOLDER_TRANSITION >= 2
+    [[deprecated("use PointerHolder<T>::get() instead of getPointer()")]]
+# endif // POINTERHOLDER_TRANSITION >= 2
+    T const*
+    getPointer() const
     {
-        return *this->data->pointer;
+        return this->get();
     }
 
-    T const* operator->() const
+# if POINTERHOLDER_TRANSITION >= 2
+    [[deprecated("use PointerHolder<T>::get() instead of getPointer()")]]
+# endif // POINTERHOLDER_TRANSITION >= 2
+    int
+    getRefcount() const
     {
-        return this->data->pointer;
-    }
-    T* operator->()
-    {
-        return this->data->pointer;
+        return static_cast<int>(this->use_count());
     }
 
-  private:
-    void init(Data* data)
-	{
-	    this->data = data;
-	    {
-		++this->data->refcount;
-	    }
-	}
-    void copy(PointerHolder const& rhs)
-	{
-	    this->init(rhs.data);
-	}
-    void destroy()
-	{
-	    bool gone = false;
-	    {
-		if (--this->data->refcount == 0)
-		{
-		    gone = true;
-		}
-	    }
-	    if (gone)
-	    {
-		delete this->data;
-	    }
-	}
+    PointerHolder&
+    operator=(decltype(nullptr))
+    {
+        std::shared_ptr<T>::operator=(nullptr);
+        return *this;
+    }
+    T const&
+    operator*() const
+    {
+        return *(this->get());
+    }
+    T&
+    operator*()
+    {
+        return *(this->get());
+    }
 
-    Data* data;
+    T const*
+    operator->() const
+    {
+        return this->get();
+    }
+    T*
+    operator->()
+    {
+        return this->get();
+    }
 };
 
+template <typename T, typename... _Args>
+inline PointerHolder<T>
+make_pointer_holder(_Args&&... __args)
+{
+    return PointerHolder<T>(new T(__args...));
+}
+
+template <typename T>
+PointerHolder<T>
+make_array_pointer_holder(size_t n)
+{
+    return PointerHolder<T>(true, new T[n]);
+}
+
+#endif // POINTERHOLDER_TRANSITION < 4
 #endif // POINTERHOLDER_HH

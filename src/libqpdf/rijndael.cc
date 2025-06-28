@@ -1,3 +1,4 @@
+/* clang-format off */
 #define FULL_UNROLL
 
 #include "qpdf/rijndael.h"
@@ -710,7 +711,7 @@ static const u32 rcon[] =
  *
  * @return the number of rounds for the given cipher key size.
  */
-int rijndaelSetupEncrypt(u32 *rk, const u8 *key, int keybits)
+unsigned int rijndaelSetupEncrypt(u32 *rk, const u8 *key, size_t keybits)
 {
   int i = 0;
   u32 temp;
@@ -799,9 +800,9 @@ int rijndaelSetupEncrypt(u32 *rk, const u8 *key, int keybits)
  *
  * @return the number of rounds for the given cipher key size.
  */
-int rijndaelSetupDecrypt(u32 *rk, const u8 *key, int keybits)
+unsigned int rijndaelSetupDecrypt(u32 *rk, const u8 *key, size_t keybits)
 {
-  int nrounds, i, j;
+  unsigned int nrounds, i, j;
   u32 temp;
 
   /* expand the cipher key: */
@@ -842,13 +843,14 @@ int rijndaelSetupDecrypt(u32 *rk, const u8 *key, int keybits)
   return nrounds;
 }
 
-void rijndaelEncrypt(const u32 *rk, int nrounds, const u8 plaintext[16],
+void rijndaelEncrypt(const u32 *rk, unsigned int nrounds,
+                     const u8 plaintext[16],
   u8 ciphertext[16])
 {
   u32 s0, s1, s2, s3, t0, t1, t2, t3;
-  #ifndef FULL_UNROLL
+#ifndef FULL_UNROLL
     int r;
-  #endif /* ?FULL_UNROLL */
+#endif /* ?FULL_UNROLL */
   /*
    * map byte array block to cipher state
    * and add initial round key:
@@ -857,7 +859,7 @@ void rijndaelEncrypt(const u32 *rk, int nrounds, const u8 plaintext[16],
   s1 = GETU32(plaintext +  4) ^ rk[1];
   s2 = GETU32(plaintext +  8) ^ rk[2];
   s3 = GETU32(plaintext + 12) ^ rk[3];
-  #ifdef FULL_UNROLL
+#ifdef FULL_UNROLL
     /* round 1: */
     t0 = Te0[s0 >> 24] ^ Te1[(s1 >> 16) & 0xff] ^ Te2[(s2 >>  8) & 0xff] ^ Te3[s3 & 0xff] ^ rk[ 4];
     t1 = Te0[s1 >> 24] ^ Te1[(s2 >> 16) & 0xff] ^ Te2[(s3 >>  8) & 0xff] ^ Te3[s0 & 0xff] ^ rk[ 5];
@@ -930,7 +932,7 @@ void rijndaelEncrypt(const u32 *rk, int nrounds, const u8 plaintext[16],
       }
     }
     rk += nrounds << 2;
-  #else  /* !FULL_UNROLL */
+#else  /* !FULL_UNROLL */
     /*
     * nrounds - 1 full rounds:
     */
@@ -989,7 +991,7 @@ void rijndaelEncrypt(const u32 *rk, int nrounds, const u8 plaintext[16],
         Te3[(t2      ) & 0xff] ^
         rk[3];
      }
- #endif /* ?FULL_UNROLL */
+#endif /* ?FULL_UNROLL */
   /*
   * apply last round and
   * map cipher state to byte array block:
@@ -1024,13 +1026,14 @@ void rijndaelEncrypt(const u32 *rk, int nrounds, const u8 plaintext[16],
   PUTU32(ciphertext + 12, s3);
 }
 
-void rijndaelDecrypt(const u32 *rk, int nrounds, const u8 ciphertext[16],
+void rijndaelDecrypt(const u32 *rk, unsigned int nrounds,
+                     const u8 ciphertext[16],
   u8 plaintext[16])
 {
   u32 s0, s1, s2, s3, t0, t1, t2, t3;
-  #ifndef FULL_UNROLL
+#ifndef FULL_UNROLL
     int r;
-  #endif /* ?FULL_UNROLL */
+#endif /* ?FULL_UNROLL */
 
   /*
   * map byte array block to cipher state
@@ -1040,7 +1043,7 @@ void rijndaelDecrypt(const u32 *rk, int nrounds, const u8 ciphertext[16],
     s1 = GETU32(ciphertext +  4) ^ rk[1];
     s2 = GETU32(ciphertext +  8) ^ rk[2];
     s3 = GETU32(ciphertext + 12) ^ rk[3];
-  #ifdef FULL_UNROLL
+#ifdef FULL_UNROLL
     /* round 1: */
     t0 = Td0[s0 >> 24] ^ Td1[(s3 >> 16) & 0xff] ^ Td2[(s2 >>  8) & 0xff] ^ Td3[s1 & 0xff] ^ rk[ 4];
     t1 = Td0[s1 >> 24] ^ Td1[(s0 >> 16) & 0xff] ^ Td2[(s3 >>  8) & 0xff] ^ Td3[s2 & 0xff] ^ rk[ 5];
@@ -1113,7 +1116,7 @@ void rijndaelDecrypt(const u32 *rk, int nrounds, const u8 ciphertext[16],
       }
     }
     rk += nrounds << 2;
-  #else  /* !FULL_UNROLL */
+#else  /* !FULL_UNROLL */
     /*
     * nrounds - 1 full rounds:
     */
@@ -1172,7 +1175,7 @@ void rijndaelDecrypt(const u32 *rk, int nrounds, const u8 ciphertext[16],
         Td3[(t0      ) & 0xff] ^
         rk[3];
     }
-  #endif /* ?FULL_UNROLL */
+#endif /* ?FULL_UNROLL */
   /*
   * apply last round and
   * map cipher state to byte array block:

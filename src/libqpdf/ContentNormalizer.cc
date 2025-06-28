@@ -1,5 +1,9 @@
 #include <qpdf/ContentNormalizer.hh>
+
+#include <qpdf/QPDFObjectHandle_private.hh>
 #include <qpdf/QUtil.hh>
+
+using namespace qpdf;
 
 ContentNormalizer::ContentNormalizer() :
     any_bad_tokens(false),
@@ -7,77 +11,63 @@ ContentNormalizer::ContentNormalizer() :
 {
 }
 
-ContentNormalizer::~ContentNormalizer()
-{
-}
-
 void
 ContentNormalizer::handleToken(QPDFTokenizer::Token const& token)
 {
-    std::string value = token.getRawValue();
     QPDFTokenizer::token_type_e token_type = token.getType();
 
-    if (token_type == QPDFTokenizer::tt_bad)
-    {
+    if (token_type == QPDFTokenizer::tt_bad) {
         this->any_bad_tokens = true;
         this->last_token_was_bad = true;
-    }
-    else if (token_type != QPDFTokenizer::tt_eof)
-    {
+    } else if (token_type != QPDFTokenizer::tt_eof) {
         this->last_token_was_bad = false;
     }
 
-    switch (token_type)
-    {
-      case QPDFTokenizer::tt_space:
+    switch (token_type) {
+    case QPDFTokenizer::tt_space:
         {
-            size_t len = value.length();
-            for (size_t i = 0; i < len; ++i)
-            {
-                char ch = value.at(i);
-                if (ch == '\r')
-                {
-                    if ((i + 1 < len) && (value.at(i + 1) == '\n'))
-                    {
-                        // ignore
-                    }
-                    else
-                    {
-                        write("\n");
-                    }
+            std::string const& value = token.getRawValue();
+            auto size = value.size();
+            size_t pos = 0;
+            auto r_pos = value.find('\r');
+            while (r_pos != std::string::npos) {
+                if (pos != r_pos) {
+                    write(&value[pos], r_pos - pos);
                 }
-                else
-                {
-                    write(&ch, 1);
+                if (++r_pos >= size) {
+                    write("\n");
+                    return;
                 }
+                if (value[r_pos] != '\n') {
+                    write("\n");
+                }
+                pos = r_pos;
+                r_pos = value.find('\r', pos);
+            }
+            if (pos < size) {
+                write(&value[pos], size - pos);
             }
         }
+        return;
+
+    case QPDFTokenizer::tt_string:
+        // Replacing string and name tokens in this way normalizes their representation as this will
+        // automatically handle quoting of unprintable characters, etc.
+        write(QPDFObjectHandle::newString(token.getValue()).unparse());
         break;
 
-      case QPDFTokenizer::tt_string:
-        // Replacing string and name tokens in this way normalizes
-        // their representation as this will automatically handle
-        // quoting of unprintable characters, etc.
-        writeToken(QPDFTokenizer::Token(
-                       QPDFTokenizer::tt_string, token.getValue()));
-	break;
+    case QPDFTokenizer::tt_name:
+        write(Name::normalize(token.getValue()));
+        break;
 
-      case QPDFTokenizer::tt_name:
-        writeToken(QPDFTokenizer::Token(
-                       QPDFTokenizer::tt_name, token.getValue()));
-	break;
-
-      default:
+    default:
         writeToken(token);
-	break;
+        return;
     }
 
-    value = token.getRawValue();
-    if (((token_type == QPDFTokenizer::tt_string) ||
-         (token_type == QPDFTokenizer::tt_name)) &&
-        ((value.find('\r') != std::string::npos) ||
-         (value.find('\n') != std::string::npos)))
-    {
+    // tt_string or tt_name
+    std::string const& value = token.getRawValue();
+    if (value.find('\r') != std::string::npos || value.find('\n') != std::string::npos) {
         write("\n");
     }
 }
@@ -89,7 +79,7 @@ ContentNormalizer::anyBadTokens() const
 }
 
 bool
-ContentNormalizer::lastTokenWasBad()const
+ContentNormalizer::lastTokenWasBad() const
 {
     return this->last_token_was_bad;
 }

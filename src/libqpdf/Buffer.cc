@@ -1,94 +1,128 @@
+#include <qpdf/assert_test.h>
+
 #include <qpdf/Buffer.hh>
 
-#include <string.h>
+#include <cstring>
 
-Buffer::Buffer()
+class Buffer::Members
 {
-    init(0, 0, true);
+    friend class Buffer;
+
+  public:
+    ~Members();
+
+  private:
+    Members(size_t size, unsigned char* buf, bool own_memory);
+    Members(std::string&& content);
+    Members(Members const&) = delete;
+
+    std::string str;
+    bool own_memory;
+    size_t size;
+    unsigned char* buf;
+};
+
+Buffer::Members::Members(size_t size, unsigned char* buf, bool own_memory) :
+    own_memory(own_memory),
+    size(size),
+    buf(nullptr)
+{
+    if (own_memory) {
+        this->buf = (size ? new unsigned char[size] : nullptr);
+    } else {
+        this->buf = buf;
+    }
 }
 
-Buffer::Buffer(size_t size)
+Buffer::Members::Members(std::string&& content) :
+    str(std::move(content)),
+    own_memory(false),
+    size(str.size()),
+    buf(reinterpret_cast<unsigned char*>(str.data()))
 {
-    init(size, 0, true);
 }
 
-Buffer::Buffer(unsigned char* buf, size_t size)
+Buffer::Members::~Members()
 {
-    init(size, buf, false);
+    if (this->own_memory) {
+        delete[] this->buf;
+    }
 }
 
-Buffer::Buffer(Buffer const& rhs)
+Buffer::Buffer() :
+    m(new Members(0, nullptr, true))
 {
-    init(0, 0, true);
-    copy(rhs);
+}
+
+Buffer::Buffer(size_t size) :
+    m(new Members(size, nullptr, true))
+{
+}
+
+Buffer::Buffer(std::string&& content) :
+    m(new Members(std::move(content)))
+{
+}
+
+Buffer::Buffer(unsigned char* buf, size_t size) :
+    m(new Members(size, buf, false))
+{
+}
+
+Buffer::Buffer(std::string& content) :
+    m(new Members(content.size(), reinterpret_cast<unsigned char*>(content.data()), false))
+{
+}
+
+Buffer::Buffer(Buffer&& rhs) noexcept :
+    m(std::move(rhs.m))
+{
 }
 
 Buffer&
-Buffer::operator=(Buffer const& rhs)
+Buffer::operator=(Buffer&& rhs) noexcept
 {
-    copy(rhs);
+    std::swap(m, rhs.m);
     return *this;
 }
 
-Buffer::~Buffer()
-{
-    destroy();
-}
-
-void
-Buffer::init(size_t size, unsigned char* buf, bool own_memory)
-{
-    this->own_memory = own_memory;
-    this->size = size;
-    if (own_memory)
-    {
-	this->buf = (size ? new unsigned char[size] : 0);
-    }
-    else
-    {
-	this->buf = buf;
-    }
-}
+Buffer::~Buffer() = default;
 
 void
 Buffer::copy(Buffer const& rhs)
 {
-    if (this != &rhs)
-    {
-	this->destroy();
-	this->init(rhs.size, 0, true);
-	if (this->size)
-	{
-	    memcpy(this->buf, rhs.buf, this->size);
-	}
+    if (this != &rhs) {
+        m = std::unique_ptr<Members>(new Members(rhs.m->size, nullptr, true));
+        if (m->size) {
+            memcpy(m->buf, rhs.m->buf, m->size);
+        }
     }
-}
-
-void
-Buffer::destroy()
-{
-    if (this->own_memory)
-    {
-	delete [] this->buf;
-    }
-    this->size = 0;
-    this->buf = 0;
 }
 
 size_t
 Buffer::getSize() const
 {
-    return this->size;
+    return m->size;
 }
 
 unsigned char const*
 Buffer::getBuffer() const
 {
-    return this->buf;
+    return m->buf;
 }
 
 unsigned char*
 Buffer::getBuffer()
 {
-    return this->buf;
+    return m->buf;
+}
+
+Buffer
+Buffer::copy() const
+{
+    auto result = Buffer(m->size);
+    if (m->size) {
+        memcpy(result.m->buf, m->buf, m->size);
+    }
+    return result;
 }

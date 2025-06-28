@@ -1,11 +1,9 @@
 #include <qpdf/QPDFXRefEntry.hh>
-#include <qpdf/QPDFExc.hh>
-#include <qpdf/QUtil.hh>
 
-QPDFXRefEntry::QPDFXRefEntry() :
-    type(0),
-    field1(0),
-    field2(0)
+#include <qpdf/QIntC.hh>
+#include <qpdf/QPDFExc.hh>
+
+QPDFXRefEntry::QPDFXRefEntry() // NOLINT (modernize-use-equals-default)
 {
 }
 
@@ -14,10 +12,8 @@ QPDFXRefEntry::QPDFXRefEntry(int type, qpdf_offset_t field1, int field2) :
     field1(field1),
     field2(field2)
 {
-    if ((type < 1) || (type > 2))
-    {
-	throw std::logic_error(
-	    "invalid xref type " + QUtil::int_to_string(type));
+    if ((type < 1) || (type > 2)) {
+        throw std::logic_error("invalid xref type " + std::to_string(type));
     }
 }
 
@@ -30,10 +26,8 @@ QPDFXRefEntry::getType() const
 qpdf_offset_t
 QPDFXRefEntry::getOffset() const
 {
-    if (this->type != 1)
-    {
-	throw std::logic_error(
-	    "getOffset called for xref entry of type != 1");
+    if (this->type != 1) {
+        throw std::logic_error("getOffset called for xref entry of type != 1");
     }
     return this->field1;
 }
@@ -41,21 +35,17 @@ QPDFXRefEntry::getOffset() const
 int
 QPDFXRefEntry::getObjStreamNumber() const
 {
-    if (this->type != 2)
-    {
-	throw std::logic_error(
-	    "getObjStreamNumber called for xref entry of type != 2");
+    if (this->type != 2) {
+        throw std::logic_error("getObjStreamNumber called for xref entry of type != 2");
     }
-    return this->field1;
+    return QIntC::to_int(this->field1);
 }
 
 int
 QPDFXRefEntry::getObjStreamIndex() const
 {
-    if (this->type != 2)
-    {
-	throw std::logic_error(
-	    "getObjStreamIndex called for xref entry of type != 2");
+    if (this->type != 2) {
+        throw std::logic_error("getObjStreamIndex called for xref entry of type != 2");
     }
     return this->field2;
 }
