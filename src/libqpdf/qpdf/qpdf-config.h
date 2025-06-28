@@ -28,8 +28,8 @@
 #define HAVE_RANDOM 1
 #endif
 #define HAVE_TM_GMTOFF 1
-#define HAVE_MALLOC_INFO 1
-#define HAVE_OPEN_MEMSTREAM 1
+/* #undef HAVE_MALLOC_INFO */
+/* #undef HAVE_OPEN_MEMSTREAM */
 
 /* bytes in the size_t type */
 /* #undef SIZEOF_SIZE_T */
