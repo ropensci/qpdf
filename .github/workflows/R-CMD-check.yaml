@@ -22,6 +22,8 @@ jobs:
           - {os: macos-14,        r: 'release'}
           - {os: macos-15,        r: 'next'}
           - {os: windows-latest,  r: '4.2'}
+          - {os: windows-latest,  r: '4.3'}
+          - {os: windows-latest,  r: '4.4'}
           - {os: windows-latest,  r: 'release'}
           - {os: windows-latest,  r: 'devel'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
