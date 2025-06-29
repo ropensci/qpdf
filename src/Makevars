@@ -7,25 +7,26 @@ PKG_LIBS = -Llibqpdf -lstatqpdf -ljpeg -lz
 STATLIB = libqpdf/libstatqpdf.a
 
 LIBQPDF = libqpdf/AES_PDF_native.o libqpdf/BitStream.o libqpdf/BitWriter.o libqpdf/Buffer.o libqpdf/BufferInputSource.o \
-		libqpdf/ClosedFileInputSource.o libqpdf/ContentNormalizer.o libqpdf/CryptoRandomDataProvider.o libqpdf/FileInputSource.o \
-		libqpdf/InputSource.o libqpdf/InsecureRandomDataProvider.o libqpdf/JSON.o libqpdf/JSONHandler.o libqpdf/MD5.o libqpdf/MD5_native.o \
-		libqpdf/OffsetInputSource.o libqpdf/PDFVersion.o libqpdf/Pipeline.o libqpdf/Pl_AES_PDF.o libqpdf/Pl_ASCII85Decoder.o \
-		libqpdf/Pl_ASCIIHexDecoder.o libqpdf/Pl_Base64.o libqpdf/Pl_Buffer.o libqpdf/Pl_Concatenate.o libqpdf/Pl_Count.o \
-		libqpdf/Pl_DCT.o libqpdf/Pl_Discard.o libqpdf/Pl_Flate.o libqpdf/Pl_LZWDecoder.o libqpdf/Pl_MD5.o libqpdf/Pl_OStream.o\
-		libqpdf/Pl_PNGFilter.o libqpdf/Pl_QPDFTokenizer.o libqpdf/Pl_RC4.o libqpdf/Pl_RunLength.o \
-		libqpdf/Pl_SHA2.o libqpdf/Pl_StdioFile.o libqpdf/Pl_String.o libqpdf/Pl_TIFFPredictor.o libqpdf/QPDFArgParser.o libqpdf/QPDF_Array.o \
-		libqpdf/QPDFCryptoProvider.o libqpdf/QPDFCrypto_native.o libqpdf/QPDFDocumentHelper.o libqpdf/QPDFEFStreamObjectHelper.o libqpdf/QPDFEmbeddedFileDocumentHelper.o libqpdf/QPDF_Dictionary.o libqpdf/QPDF_encryption.o \
-		libqpdf/QPDF_json.o libqpdf/QPDF_linearization.o libqpdf/QPDF_Name.o \
-		libqpdf/QPDF_objects.o libqpdf/QPDF_optimization.o libqpdf/QPDF_pages.o \
-		libqpdf/QPDF_Stream.o libqpdf/QPDF_String.o libqpdf/qpdf-c.o \
-		libqpdf/QPDFAcroFormDocumentHelper.o libqpdf/QPDFAnnotationObjectHelper.o libqpdf/QPDFExc.o libqpdf/QPDFFileSpecObjectHelper.o \
-		libqpdf/QPDFFormFieldObjectHelper.o libqpdf/qpdfjob-c.o libqpdf/QPDFJob_config.o libqpdf/QPDFJob_json.o libqpdf/QPDFLogger.o libqpdf/qpdflogger-c.o libqpdf/QPDFMatrix.o libqpdf/QPDFNameTreeObjectHelper.o \
-		libqpdf/QPDFNumberTreeObjectHelper.o libqpdf/QPDFObject.o libqpdf/QPDFObjectHandle.o \
-		libqpdf/QPDFObjectHelper.o libqpdf/QPDFOutlineDocumentHelper.o libqpdf/QPDFOutlineObjectHelper.o \
-		libqpdf/QPDFPageDocumentHelper.o libqpdf/QPDFPageLabelDocumentHelper.o libqpdf/QPDFPageObjectHelper.o libqpdf/QPDFParser.o \
-		libqpdf/QPDFStreamFilter.o libqpdf/QPDFSystemError.o libqpdf/QPDFTokenizer.o libqpdf/QPDFUsage.o libqpdf/QPDFWriter.o libqpdf/QPDFXRefEntry.o \
-		libqpdf/QTC.o libqpdf/QUtil.o libqpdf/RC4.o libqpdf/RC4_native.o libqpdf/ResourceFinder.o libqpdf/rijndael.o libqpdf/SecureRandomDataProvider.o \
-		libqpdf/SF_FlateLzwDecode.o libqpdf/sha2.o libqpdf/sha2big.o libqpdf/SHA2_native.o libqpdf/Pl_Function.o libqpdf/QPDFJob_argv.o libqpdf/QPDF.o libqpdf/QPDFJob.o libqpdf/NNTree.o
+	libqpdf/ClosedFileInputSource.o libqpdf/ContentNormalizer.o libqpdf/CryptoRandomDataProvider.o libqpdf/FileInputSource.o \
+	libqpdf/InputSource.o libqpdf/InsecureRandomDataProvider.o libqpdf/JSON.o libqpdf/JSONHandler.o libqpdf/MD5_native.o \
+	libqpdf/MD5.o libqpdf/NNTree.o libqpdf/OffsetInputSource.o libqpdf/PDFVersion.o libqpdf/Pipeline.o libqpdf/Pl_AES_PDF.o \
+	libqpdf/Pl_ASCII85Decoder.o libqpdf/Pl_ASCIIHexDecoder.o libqpdf/Pl_Base64.o libqpdf/Pl_Buffer.o libqpdf/Pl_Concatenate.o \
+	libqpdf/Pl_Count.o libqpdf/Pl_DCT.o libqpdf/Pl_Discard.o libqpdf/Pl_Flate.o libqpdf/Pl_Function.o libqpdf/Pl_LZWDecoder.o \
+	libqpdf/Pl_MD5.o libqpdf/Pl_OStream.o libqpdf/Pl_PNGFilter.o libqpdf/Pl_QPDFTokenizer.o libqpdf/Pl_RC4.o libqpdf/Pl_RunLength.o \
+	libqpdf/Pl_SHA2.o libqpdf/Pl_StdioFile.o libqpdf/Pl_String.o libqpdf/Pl_TIFFPredictor.o libqpdf/QPDF_Array.o \
+	libqpdf/QPDF_Dictionary.o libqpdf/QPDF_encryption.o libqpdf/QPDF_json.o libqpdf/QPDF_linearization.o libqpdf/QPDF_Name.o \
+	libqpdf/QPDF_objects.o libqpdf/QPDF_optimization.o libqpdf/QPDF_pages.o libqpdf/QPDF_Stream.o libqpdf/QPDF_String.o \
+	libqpdf/qpdf-c.o libqpdf/QPDF.o libqpdf/QPDFAcroFormDocumentHelper.o libqpdf/QPDFAnnotationObjectHelper.o libqpdf/QPDFArgParser.o \
+	libqpdf/QPDFCrypto_native.o libqpdf/QPDFCryptoProvider.o libqpdf/QPDFDocumentHelper.o libqpdf/QPDFEFStreamObjectHelper.o \
+	libqpdf/QPDFEmbeddedFileDocumentHelper.o libqpdf/QPDFExc.o libqpdf/QPDFFileSpecObjectHelper.o libqpdf/QPDFFormFieldObjectHelper.o \
+	libqpdf/QPDFJob_argv.o libqpdf/QPDFJob_config.o libqpdf/QPDFJob_json.o libqpdf/qpdfjob-c.o libqpdf/QPDFJob.o libqpdf/qpdflogger-c.o \
+	libqpdf/QPDFLogger.o libqpdf/QPDFMatrix.o libqpdf/QPDFNameTreeObjectHelper.o libqpdf/QPDFNumberTreeObjectHelper.o \
+	libqpdf/QPDFObject.o libqpdf/QPDFObjectHandle.o libqpdf/QPDFObjectHelper.o libqpdf/QPDFOutlineDocumentHelper.o \
+	libqpdf/QPDFOutlineObjectHelper.o libqpdf/QPDFPageDocumentHelper.o libqpdf/QPDFPageLabelDocumentHelper.o libqpdf/QPDFPageObjectHelper.o \
+	libqpdf/QPDFParser.o libqpdf/QPDFStreamFilter.o libqpdf/QPDFSystemError.o libqpdf/QPDFTokenizer.o libqpdf/QPDFUsage.o \
+	libqpdf/QPDFWriter.o libqpdf/QPDFXRefEntry.o libqpdf/QTC.o libqpdf/QUtil.o libqpdf/RC4_native.o libqpdf/RC4.o libqpdf/ResourceFinder.o \
+	libqpdf/rijndael.o libqpdf/SecureRandomDataProvider.o libqpdf/SF_FlateLzwDecode.o libqpdf/SHA2_native.o libqpdf/sha2.o \
+	libqpdf/sha2big.o
 
 #all: clean
 all: $(SHLIB) cleanup
