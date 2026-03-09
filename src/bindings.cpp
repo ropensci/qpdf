@@ -133,7 +133,8 @@ Rcpp::CharacterVector cpp_pdf_rotate_pages(char const* infile, char const* outfi
 
 // [[Rcpp::export]]
 Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile,
-                                      char const* outfile, char const* password){
+                                      char const* outfile, char const* password,
+                                      Rcpp::IntegerVector which){
   QPDF inpdf;
   QPDF stamppdf;
   read_pdf_with_password(infile, password, &inpdf);
@@ -144,22 +145,25 @@ Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile,
   QPDFObjectHandle foreign_fo = stamp_page_1.getFormXObjectForPage();
   QPDFObjectHandle stamp_fo = inpdf.copyForeignObject(foreign_fo);
   std::vector<QPDFPageObjectHelper> pages = QPDFPageDocumentHelper(inpdf).getAllPages();
-  for (std::vector<QPDFPageObjectHelper>::iterator iter = pages.begin(); iter != pages.end(); ++iter) {
-    QPDFPageObjectHelper& ph = *iter;
-    QPDFObjectHandle resources = ph.getAttribute("/Resources", true);
-    int min_suffix = 1;
-    std::string name = resources.getUniqueResourceName("/Fx", min_suffix);
-    std::string content =
-      ph.placeFormXObject(
-        stamp_fo, name, ph.getTrimBox().getArrayAsRectangle());
-    if (! content.empty()) {
-      resources.mergeResources(
-        QPDFObjectHandle::parse("<< /XObject << >> >>"));
-      resources.getKey("/XObject").replaceKey(name, stamp_fo);
-      ph.addPageContents(
-        QPDFObjectHandle::newStream(&inpdf, "q\n"), true);
-      ph.addPageContents(
-        QPDFObjectHandle::newStream(&inpdf, "\nQ\n" + content), false);
+  int npages = pages.size();
+  for (int i = 0; i < npages; i++) {
+    if (std::find(which.begin(), which.end(), i + 1) != which.end()) {
+      QPDFPageObjectHelper& ph = pages.at(i);
+      QPDFObjectHandle resources = ph.getAttribute("/Resources", true);
+      int min_suffix = 1;
+      std::string name = resources.getUniqueResourceName("/Fx", min_suffix);
+      std::string content =
+        ph.placeFormXObject(
+          stamp_fo, name, ph.getTrimBox().getArrayAsRectangle());
+      if (! content.empty()) {
+        resources.mergeResources(
+          QPDFObjectHandle::parse("<< /XObject << >> >>"));
+        resources.getKey("/XObject").replaceKey(name, stamp_fo);
+        ph.addPageContents(
+          QPDFObjectHandle::newStream(&inpdf, "q\n"), true);
+        ph.addPageContents(
+          QPDFObjectHandle::newStream(&inpdf, "\nQ\n" + content), false);
+      }
     }
   }
   QPDFWriter w(inpdf, outfile);

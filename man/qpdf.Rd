@@ -21,7 +21,7 @@ pdf_combine(input, output = NULL, password = "")
 
 pdf_compress(input, output = NULL, linearize = FALSE, password = "")
 
-pdf_overlay_stamp(input, stamp, output = NULL, password = "")
+pdf_overlay_stamp(input, stamp, output = NULL, password = "", pages)
 
 pdf_rotate_pages(
   input,
@@ -39,7 +39,8 @@ pdf_rotate_pages(
 
 \item{password}{string with password to open pdf file}
 
-\item{pages}{a vector with page numbers to rotate}
+\item{pages}{a vector with page numbers to rotate/select/stamp depending on the function;
+for \code{pdf_select} negative numbers means removing those pages (same as R indexing)}
 
 \item{linearize}{enable pdf linearization (streamable pdf)}
 

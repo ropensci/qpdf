@@ -25,6 +25,8 @@
 #' @param input path or url to the input pdf file
 #' @param output base path of the output file(s)
 #' @param password string with password to open pdf file
+#' @param pages a vector with page numbers to rotate/select/stamp depending on the function;
+#'   for `pdf_select` negative numbers means removing those pages (same as R indexing)
 #' @examples \donttest{
 #' # extract some pages
 #' pdf_file <- file.path(tempdir(), "output.pdf")
@@ -49,8 +51,6 @@ pdf_length <- function(input, password = ""){
 
 #' @export
 #' @rdname qpdf
-#' @param pages a vector with page numbers to select. Negative numbers
-#' means removing those pages (same as R indexing)
 pdf_subset <- function(input, pages = 1, output = NULL, password = ""){
   input <- get_input(input)
   if(!length(output))
@@ -87,18 +87,21 @@ pdf_compress <- function(input, output = NULL, linearize = FALSE, password = "")
 #' @export
 #' @rdname qpdf
 #' @param stamp pdf file of which the first page is overlayed into each page of input
-pdf_overlay_stamp <- function(input, stamp, output = NULL, password = ""){
+pdf_overlay_stamp <- function(input, stamp, output = NULL, password = "", pages){
   input <- get_input(input)
   stamp <- get_input(stamp)
   if(!length(output))
     output <- sub("\\.pdf$", "_output.pdf", input)
   output <- normalizePath(output, mustWork = FALSE)
-  cpp_pdf_overlay(input, stamp, output, password)
+  size <- pdf_length(input, password = password)
+  pages <- seq_len(size)[pages]
+  if (any(is.na(pages)) || !length(pages))
+    stop("Selected pages out of range")
+  cpp_pdf_overlay(input, stamp, output, password, pages)
 }
 
 #' @export
 #' @rdname qpdf
-#' @param pages a vector with page numbers to rotate
 #' @param angle rotation angle in degrees (positive = clockwise)
 #' @param relative if `TRUE`, pages are rotated relative to their current orientation. If `FALSE`, rotation is absolute (0 = portrait, 90 = landscape, rotated 90 degrees clockwise from portrait)
 pdf_rotate_pages <- function(input, pages, angle = 90, relative = FALSE, output = NULL, password = ""){
