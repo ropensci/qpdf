@@ -1,3 +1,4 @@
+#include <qpdf/ClosedFileInputSource.hh>
 #include <qpdf/QPDF.hh>
 #include <qpdf/QPDFPageDocumentHelper.hh>
 #include <qpdf/QPDFWriter.hh>
@@ -5,9 +6,16 @@
 #include <string>
 #include <Rcpp.h>
 
-static void read_pdf_with_password(char const* infile, char const* password, QPDF *pdf){
+// `use_cfis = true` uses ClosedFileInputSource so opened/closed on demand
+// this avoids "too many open files" when combining many PDFs
+static void read_pdf_with_password(char const* infile, char const* password, QPDF *pdf, bool use_cfis = false){
   try {
-    pdf->processFile(infile, password);
+    if (use_cfis) {
+      auto cis = std::make_shared<ClosedFileInputSource>(infile);
+      pdf->processInputSource(cis, password);
+    } else {
+      pdf->processFile(infile, password);
+    }
   } catch(const std::exception& e){
     if (strlen(password) == 0 && strstr(e.what(), "password") != NULL) {
       Rcpp::Function askpass = Rcpp::Environment::namespace_env("qpdf")["password_callback"];
@@ -15,10 +23,20 @@ static void read_pdf_with_password(char const* infile, char const* password, QPD
 
       //this is only for testing the new password */
       QPDF pdf2;
-      pdf2.processFile(infile, value.get_cstring());
+      if (use_cfis) {
+        auto cis2 = std::make_shared<ClosedFileInputSource>(infile);
+        pdf2.processInputSource(cis2, value.get_cstring());
+      } else {
+        pdf2.processFile(infile, value.get_cstring());
+      }
 
       //actually read it
-      pdf->processFile(infile, value.get_cstring());
+      if (use_cfis) {
+        auto cis3 = std::make_shared<ClosedFileInputSource>(infile);
+        pdf->processInputSource(cis3, value.get_cstring());
+      } else {
+        pdf->processFile(infile, value.get_cstring());
+      }
     } else {
       throw;
     }
@@ -82,10 +100,10 @@ Rcpp::CharacterVector cpp_pdf_combine(Rcpp::CharacterVector infiles, char const*
   outpdf.emptyPDF();
   for (int i = 0; i < infiles.size(); i++) {
     QPDF inpdf;
-    read_pdf_with_password(infiles.at(i), password, &inpdf);
+    read_pdf_with_password(infiles.at(i), password, &inpdf, true);
     std::vector<QPDFPageObjectHelper> pages =  QPDFPageDocumentHelper(inpdf).getAllPages();
-    for (int i = 0; i < pages.size(); i++) {
-      QPDFPageDocumentHelper(outpdf).addPage(pages.at(i), false);
+    for (int j = 0; j < pages.size(); j++) {
+      QPDFPageDocumentHelper(outpdf).addPage(pages.at(j), false);
     }
   }
   QPDFWriter outpdfw(outpdf, outfile);

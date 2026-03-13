@@ -1,5 +1,7 @@
 development
-  - `pdf_overlay_stamp()` gains a `pages` argument to stamp only selected pages (#29)
+  - pdf_overlay_stamp() gains a pages argument to stamp only selected pages (#29)
+  - pdf_combine() no longer throws a "too many open files" error when combining
+    large numbers of PDF files (#21)
 
 1.4.1
   - Try to fix LTO build on CRAN (do not strip static lib)
