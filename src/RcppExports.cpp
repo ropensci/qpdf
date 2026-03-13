@@ -92,9 +92,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_pdf_overlay
-Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile, char const* outfile, char const* password, Rcpp::IntegerVector which);
-RcppExport SEXP _qpdf_cpp_pdf_overlay(SEXP infileSEXP, SEXP stampfileSEXP, SEXP outfileSEXP, SEXP passwordSEXP, SEXP whichSEXP) {
+// cpp_pdf_stamp
+Rcpp::CharacterVector cpp_pdf_stamp(char const* infile, char const* stampfile, char const* outfile, char const* password, Rcpp::IntegerVector which, bool underlay);
+RcppExport SEXP _qpdf_cpp_pdf_stamp(SEXP infileSEXP, SEXP stampfileSEXP, SEXP outfileSEXP, SEXP passwordSEXP, SEXP whichSEXP, SEXP underlaySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -103,7 +103,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< char const* >::type outfile(outfileSEXP);
     Rcpp::traits::input_parameter< char const* >::type password(passwordSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type which(whichSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_pdf_overlay(infile, stampfile, outfile, password, which));
+    Rcpp::traits::input_parameter< bool >::type underlay(underlaySEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pdf_stamp(infile, stampfile, outfile, password, which, underlay));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -115,7 +116,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_qpdf_cpp_pdf_combine", (DL_FUNC) &_qpdf_cpp_pdf_combine, 3},
     {"_qpdf_cpp_pdf_compress", (DL_FUNC) &_qpdf_cpp_pdf_compress, 4},
     {"_qpdf_cpp_pdf_rotate_pages", (DL_FUNC) &_qpdf_cpp_pdf_rotate_pages, 6},
-    {"_qpdf_cpp_pdf_overlay", (DL_FUNC) &_qpdf_cpp_pdf_overlay, 5},
+    {"_qpdf_cpp_pdf_stamp", (DL_FUNC) &_qpdf_cpp_pdf_stamp, 6},
     {NULL, NULL, 0}
 };
 

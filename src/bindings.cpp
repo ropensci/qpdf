@@ -132,9 +132,9 @@ Rcpp::CharacterVector cpp_pdf_rotate_pages(char const* infile, char const* outfi
 }
 
 // [[Rcpp::export]]
-Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile,
-                                      char const* outfile, char const* password,
-                                      Rcpp::IntegerVector which){
+Rcpp::CharacterVector cpp_pdf_stamp(char const* infile, char const* stampfile,
+                                    char const* outfile, char const* password,
+                                    Rcpp::IntegerVector which, bool underlay){
   QPDF inpdf;
   QPDF stamppdf;
   read_pdf_with_password(infile, password, &inpdf);
@@ -159,10 +159,17 @@ Rcpp::CharacterVector cpp_pdf_overlay(char const* infile, char const* stampfile,
         resources.mergeResources(
           QPDFObjectHandle::parse("<< /XObject << >> >>"));
         resources.getKey("/XObject").replaceKey(name, stamp_fo);
-        ph.addPageContents(
-          QPDFObjectHandle::newStream(&inpdf, "q\n"), true);
-        ph.addPageContents(
-          QPDFObjectHandle::newStream(&inpdf, "\nQ\n" + content), false);
+        if (underlay) {
+          ph.addPageContents(
+            QPDFObjectHandle::newStream(&inpdf, content + "\nq\n"), true);
+          ph.addPageContents(
+            QPDFObjectHandle::newStream(&inpdf, "\nQ\n"), false);
+        } else { // overlay
+          ph.addPageContents(
+            QPDFObjectHandle::newStream(&inpdf, "q\n"), true);
+          ph.addPageContents(
+            QPDFObjectHandle::newStream(&inpdf, "\nQ\n" + content), false);
+        }
       }
     }
   }

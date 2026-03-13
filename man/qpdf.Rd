@@ -8,6 +8,7 @@
 \alias{pdf_combine}
 \alias{pdf_compress}
 \alias{pdf_overlay_stamp}
+\alias{pdf_underlay_stamp}
 \alias{pdf_rotate_pages}
 \title{Split, Combine and Compress PDF Files}
 \usage{
@@ -22,6 +23,8 @@ pdf_combine(input, output = NULL, password = "")
 pdf_compress(input, output = NULL, linearize = FALSE, password = "")
 
 pdf_overlay_stamp(input, stamp, output = NULL, password = "", pages)
+
+pdf_underlay_stamp(input, stamp, output = NULL, password = "", pages)
 
 pdf_rotate_pages(
   input,
@@ -44,7 +47,7 @@ for \code{pdf_select} negative numbers means removing those pages (same as R ind
 
 \item{linearize}{enable pdf linearization (streamable pdf)}
 
-\item{stamp}{pdf file of which the first page is overlayed into each page of input}
+\item{stamp}{pdf file of which the first page is overlayed/underlayed into each page of input}
 
 \item{angle}{rotation angle in degrees (positive = clockwise)}
 
@@ -64,6 +67,8 @@ Currently the package provides the following wrappers:
 \item \link{pdf_combine}: join several pdf files into one
 \item \link{pdf_compress}: compress or linearize a pdf file
 \item \link{pdf_rotate_pages}: rotate selected pages
+\item \link{pdf_overlay_stamp}: overlay the first page of a pdf stamp onto each page of input
+\item \link{pdf_underlay_stamp}: underlay the first page of a pdf stamp beneath each page of input
 }
 
 These functions do not modify the \code{input} file: they create new output file(s)

@@ -12,6 +12,8 @@
 #' - [pdf_combine]: join several pdf files into one
 #' - [pdf_compress]: compress or linearize a pdf file
 #' - [pdf_rotate_pages]: rotate selected pages
+#' - [pdf_overlay_stamp]: overlay the first page of a pdf stamp onto each page of input
+#' - [pdf_underlay_stamp]: underlay the first page of a pdf stamp beneath each page of input
 #'
 #' These functions do not modify the `input` file: they create new output file(s)
 #' and return the path(s) to these newly created files.
@@ -86,7 +88,7 @@ pdf_compress <- function(input, output = NULL, linearize = FALSE, password = "")
 
 #' @export
 #' @rdname qpdf
-#' @param stamp pdf file of which the first page is overlayed into each page of input
+#' @param stamp pdf file of which the first page is overlayed/underlayed into each page of input
 pdf_overlay_stamp <- function(input, stamp, output = NULL, password = "", pages){
   input <- get_input(input)
   stamp <- get_input(stamp)
@@ -97,7 +99,22 @@ pdf_overlay_stamp <- function(input, stamp, output = NULL, password = "", pages)
   pages <- seq_len(size)[pages]
   if (any(is.na(pages)) || !length(pages))
     stop("Selected pages out of range")
-  cpp_pdf_overlay(input, stamp, output, password, pages)
+  cpp_pdf_stamp(input, stamp, output, password, pages, underlay = FALSE)
+}
+
+#' @export
+#' @rdname qpdf
+pdf_underlay_stamp <- function(input, stamp, output = NULL, password = "", pages){
+  input <- get_input(input)
+  stamp <- get_input(stamp)
+  if(!length(output))
+    output <- sub("\\.pdf$", "_output.pdf", input)
+  output <- normalizePath(output, mustWork = FALSE)
+  size <- pdf_length(input, password = password)
+  pages <- seq_len(size)[pages]
+  if (any(is.na(pages)) || !length(pages))
+    stop("Selected pages out of range")
+  cpp_pdf_stamp(input, stamp, output, password, pages, underlay = TRUE)
 }
 
 #' @export

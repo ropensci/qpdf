@@ -1,5 +1,6 @@
 development
-  - `pdf_overlay_stamp()` gains a `pages` argument to stamp only selected pages (#29)
+  - New function `pdf_underlay_stamp()` (#31)
+  - pdf_overlay_stamp() gains a pages argument to stamp only selected pages (#29)
 
 1.4.1
   - Try to fix LTO build on CRAN (do not strip static lib)
